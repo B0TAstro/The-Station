@@ -4,8 +4,6 @@ import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
     const session = await auth();
-
-    // Public routes that don't require auth
     const publicRoutes = ['/login', '/api/auth'];
     const isPublicRoute = publicRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
 

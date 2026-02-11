@@ -1,4 +1,3 @@
-// Budget Types
 export interface Transaction {
     id: string;
     plaid_id?: string;

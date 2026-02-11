@@ -3,7 +3,6 @@ import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 import Credentials from 'next-auth/providers/credentials';
 
-// Whitelist of allowed emails
 const ALLOWED_EMAILS = process.env.ALLOWED_EMAIL?.split(',') || [];
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -26,13 +25,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const email = credentials?.email as string;
                 const password = credentials?.password as string;
 
-                // Check whitelist
                 if (!ALLOWED_EMAILS.includes(email)) {
                     throw new Error('Email not authorized');
                 }
 
-                // For demo purposes - in production, verify against Supabase
-                // This is a simple check, you should implement proper password hashing
                 if (password === process.env.AUTH_PASSWORD) {
                     return {
                         id: '1',
@@ -49,7 +45,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         async signIn({ user }) {
             const email = user.email;
 
-            // Check whitelist for OAuth providers
             if (email && ALLOWED_EMAILS.includes(email)) {
                 return true;
             }

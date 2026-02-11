@@ -1,68 +1,68 @@
 name: 🚀 Deploy
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    types: [opened, synchronize, reopened]
+    push:
+        branches: [main]
+    pull_request:
+        types: [opened, synchronize, reopened]
 
 concurrency:
-  group: "deploy-${{ github.ref }}"
-  cancel-in-progress: true
+    group: 'deploy-${{ github.ref }}'
+    cancel-in-progress: true
 
 env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  deploy-preview:
-    name: 🔍 Preview Deploy
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v6
+    deploy-preview:
+        name: 🔍 Preview Deploy
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        steps:
+            - name: ⬇️ Checkout
+              uses: actions/checkout@v6
 
-      - name: 🧰 Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "20"
-          cache: npm
+            - name: 🧰 Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '20'
+                  cache: npm
 
-      - name: 📥 Install Vercel CLI
-        run: npm i -g vercel@latest
+            - name: 📥 Install Vercel CLI
+              run: npm i -g vercel@latest
 
-      - name: 🔗 Pull Vercel Environment
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+            - name: 🔗 Pull Vercel Environment
+              run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: 🏗️ Build
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+            - name: 🏗️ Build
+              run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: 🚀 Deploy Preview
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+            - name: 🚀 Deploy Preview
+              run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
 
-  deploy-production:
-    name: 🚀 Production Deploy
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v6
+    deploy-production:
+        name: 🚀 Production Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        runs-on: ubuntu-latest
+        steps:
+            - name: ⬇️ Checkout
+              uses: actions/checkout@v6
 
-      - name: 🧰 Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "20"
-          cache: npm
+            - name: 🧰 Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '20'
+                  cache: npm
 
-      - name: 📥 Install Vercel CLI
-        run: npm i -g vercel@latest
+            - name: 📥 Install Vercel CLI
+              run: npm i -g vercel@latest
 
-      - name: 🔗 Pull Vercel Environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+            - name: 🔗 Pull Vercel Environment
+              run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: 🏗️ Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+            - name: 🏗️ Build
+              run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: 🚀 Deploy Production
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+            - name: 🚀 Deploy Production
+              run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

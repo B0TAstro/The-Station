@@ -12,7 +12,7 @@ interface HeaderProps {
 export function Header({ title, description, variant = 'default', children }: HeaderProps) {
     return (
         <header className="mb-8 pb-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
                 <div>
                     <h1
                         className={cn(

@@ -1,27 +1,27 @@
 name: 🔍 Lint
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches: [main]
+    pull_request:
+        types: [opened, synchronize, reopened]
+    push:
+        branches: [main]
 
 jobs:
-  lint:
-    name: 🪄 Check lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v6
+    lint:
+        name: 🪄 Check lint
+        runs-on: ubuntu-latest
+        steps:
+            - name: ⬇️ Checkout
+              uses: actions/checkout@v6
 
-      - name: 🧰 Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "20"
-          cache: npm
+            - name: 🧰 Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '20'
+                  cache: npm
 
-      - name: 📥 Install
-        run: npm ci
+            - name: 📥 Install
+              run: npm ci
 
-      - name: 🔍 Lint
-        run: npm run lint
+            - name: 🔍 Lint
+              run: npm run lint

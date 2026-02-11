@@ -1,11 +1,6 @@
 @import 'tailwindcss';
 
-/* =====================================================
-   THE STATION — MODERN DARK DESIGN SYSTEM
-   ===================================================== */
-
 :root {
-    /* Base — full dark */
     --background: #09090b;
     --foreground: #fafafa;
     --muted: #18181b;
@@ -16,19 +11,16 @@
     --accent: #3b82f6;
     --accent-foreground: #ffffff;
 
-    /* Budget Theme (Blue) */
     --budget: #3b82f6;
     --budget-light: #60a5fa;
     --budget-dark: #2563eb;
     --budget-muted: rgba(59, 130, 246, 0.08);
 
-    /* Freelance Theme (Red) */
     --freelance: #ef4444;
     --freelance-light: #f87171;
     --freelance-dark: #dc2626;
     --freelance-muted: rgba(239, 68, 68, 0.08);
 
-    /* Status Colors */
     --success: #22c55e;
     --warning: #eab308;
     --danger: #ef4444;
@@ -56,14 +48,6 @@
     --font-mono: var(--font-geist-mono);
 }
 
-/* =====================================================
-   BASE STYLES
-   ===================================================== */
-
-* {
-    box-sizing: border-box;
-}
-
 html {
     scroll-behavior: smooth;
 }
@@ -80,10 +64,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
-/* =====================================================
-   SCROLLBAR
-   ===================================================== */
 
 ::-webkit-scrollbar {
     width: 6px;

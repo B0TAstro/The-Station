@@ -15,7 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
     title: 'The Station',
     description: 'Personal dashboard for budget and freelance management',
-    manifest: '/manifest.json',
+    icons: {
+        icon: '/favicon.ico',
+        apple: '/logo-the-station.png',
+    },
     appleWebApp: {
         capable: true,
         statusBarStyle: 'black-translucent',

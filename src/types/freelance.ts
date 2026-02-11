@@ -1,11 +1,4 @@
-// Freelance Types
-export type ProjectStatus =
-    | 'relation' // Mise en relation
-    | 'dev' // En développement
-    | 'prod' // En production
-    | 'relance' // Relance
-    | 'done' // Terminé
-    | 'feedback'; // Retours
+export type ProjectStatus = 'relation' | 'dev' | 'prod' | 'relance' | 'done' | 'feedback';
 
 export type SiteType = 'wordpress' | 'custom' | 'react' | 'nextjs' | 'vue' | 'other';
 
