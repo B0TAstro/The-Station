@@ -3,8 +3,6 @@ name: 🚀 Deploy
 on:
     push:
         branches: [main]
-    pull_request:
-        types: [opened, synchronize, reopened]
 
 concurrency:
     group: 'deploy-${{ github.ref }}'
@@ -15,42 +13,15 @@ env:
     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-    deploy-preview:
-        name: 🔍 Preview Deploy
-        if: github.event_name == 'pull_request'
+    deploy:
+        name: 🚀 Deploy to Vercel
         runs-on: ubuntu-latest
         steps:
             - name: ⬇️ Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: 🧰 Setup Node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: '20'
-                  cache: npm
-
-            - name: 📥 Install Vercel CLI
-              run: npm i -g vercel@latest
-
-            - name: 🔗 Pull Vercel Environment
-              run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-            - name: 🏗️ Build
-              run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-            - name: 🚀 Deploy Preview
-              run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-
-    deploy-production:
-        name: 🚀 Production Deploy
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        runs-on: ubuntu-latest
-        steps:
-            - name: ⬇️ Checkout
-              uses: actions/checkout@v6
-
-            - name: 🧰 Setup Node
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: '20'
                   cache: npm
