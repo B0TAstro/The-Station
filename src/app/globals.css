@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* =====================================================
+   THE STATION — MODERN DARK DESIGN SYSTEM
+   ===================================================== */
+
+:root {
+  /* Base — full dark */
+  --background: #09090b;
+  --foreground: #fafafa;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+  --card: #111113;
+  --card-hover: #19191c;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+
+  /* Budget Theme (Blue) */
+  --budget: #3b82f6;
+  --budget-light: #60a5fa;
+  --budget-dark: #2563eb;
+  --budget-muted: rgba(59, 130, 246, 0.08);
+
+  /* Freelance Theme (Red) */
+  --freelance: #ef4444;
+  --freelance-light: #f87171;
+  --freelance-dark: #dc2626;
+  --freelance-muted: rgba(239, 68, 68, 0.08);
+
+  /* Status Colors */
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-budget: var(--budget);
+  --color-budget-light: var(--budget-light);
+  --color-budget-dark: var(--budget-dark);
+  --color-budget-muted: var(--budget-muted);
+  --color-freelance: var(--freelance);
+  --color-freelance-light: var(--freelance-light);
+  --color-freelance-dark: var(--freelance-dark);
+  --color-freelance-muted: var(--freelance-muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* =====================================================
+   BASE STYLES
+   ===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
