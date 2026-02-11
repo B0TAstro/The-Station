@@ -23,14 +23,14 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
                         'border-freelance/20 bg-freelance-muted': variant === 'freelance',
                     },
 
-                    className
+                    className,
                 )}
                 {...props}
             >
                 {children}
             </div>
         );
-    }
+    },
 );
 
 Card.displayName = 'Card';
@@ -42,7 +42,7 @@ const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
                 {children}
             </div>
         );
-    }
+    },
 );
 
 CardHeader.displayName = 'CardHeader';
@@ -50,15 +50,11 @@ CardHeader.displayName = 'CardHeader';
 const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
     ({ className, children, ...props }, ref) => {
         return (
-            <h3
-                ref={ref}
-                className={cn('text-sm font-medium text-muted-foreground', className)}
-                {...props}
-            >
+            <h3 ref={ref} className={cn('text-sm font-medium text-muted-foreground', className)} {...props}>
                 {children}
             </h3>
         );
-    }
+    },
 );
 
 CardTitle.displayName = 'CardTitle';
@@ -70,7 +66,7 @@ const CardContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
                 {children}
             </div>
         );
-    }
+    },
 );
 
 CardContent.displayName = 'CardContent';

@@ -4,17 +4,7 @@ import { Header } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
 import { ExternalLink } from 'lucide-react';
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-} from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 // Demo income data
 const monthlyIncome = [
@@ -39,7 +29,11 @@ export default function IncomePage() {
     return (
         <div>
             <Header title="Revenus" description="Historique et graphiques de tes revenus freelance" variant="freelance">
-                <a href="https://www.impots.gouv.fr/portail/particulier/declarer-mes-revenus" target="_blank" rel="noopener noreferrer">
+                <a
+                    href="https://www.impots.gouv.fr/portail/particulier/declarer-mes-revenus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     <Button variant="freelance">
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Déclarer aux impôts
@@ -133,7 +127,11 @@ export default function IncomePage() {
                             <BarChart data={yearlyComparison} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                                 <XAxis dataKey="year" stroke="#71717a" tick={{ fill: '#a1a1aa' }} />
-                                <YAxis tickFormatter={(v) => `€${v / 1000}k`} stroke="#71717a" tick={{ fill: '#a1a1aa' }} />
+                                <YAxis
+                                    tickFormatter={(v) => `€${v / 1000}k`}
+                                    stroke="#71717a"
+                                    tick={{ fill: '#a1a1aa' }}
+                                />
                                 <Tooltip
                                     formatter={(value) => formatCurrency(value as number)}
                                     contentStyle={{

@@ -6,10 +6,7 @@ import Link from 'next/link';
 export default function DashboardPage() {
     return (
         <div>
-            <Header
-                title="Dashboard"
-                description="Bienvenue sur The Station — ton espace perso"
-            />
+            <Header title="Dashboard" description="Bienvenue sur The Station — ton espace perso" />
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {/* Budget Summary */}
@@ -77,9 +74,7 @@ export default function DashboardPage() {
                             <CardTitle className="text-budget">→ Gérer mon budget</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Transactions, abonnements, graphiques mensuels
-                            </p>
+                            <p className="text-muted-foreground">Transactions, abonnements, graphiques mensuels</p>
                         </CardContent>
                     </Link>
                 </Card>
@@ -90,9 +85,7 @@ export default function DashboardPage() {
                             <CardTitle className="text-freelance">→ Gérer ma freelance</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Portfolio, revenus, suivi de projets
-                            </p>
+                            <p className="text-muted-foreground">Portfolio, revenus, suivi de projets</p>
                         </CardContent>
                     </Link>
                 </Card>

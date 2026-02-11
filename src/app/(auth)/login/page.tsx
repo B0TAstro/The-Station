@@ -73,11 +73,7 @@ export default function LoginPage() {
                             placeholder="••••••••"
                             required
                         />
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={loading}
-                        >
+                        <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : (

@@ -1,6 +1,6 @@
 import { Header } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
-import { Briefcase, DollarSign, FolderGit2, ExternalLink } from 'lucide-react';
+import { Briefcase, DollarSign, FolderGit2 } from 'lucide-react';
 import Link from 'next/link';
 import { PROJECT_STATUS_LABELS } from '@/types';
 
@@ -23,9 +23,7 @@ export default function FreelancePage() {
         <div>
             <Header title="Freelance" description="Gère ton activité freelance" variant="freelance">
                 <a href="https://www.impots.gouv.fr" target="_blank" rel="noopener noreferrer">
-                    <Button variant="freelance">
-                        Déclarer aux impôts
-                    </Button>
+                    <Button variant="freelance">Déclarer aux impôts</Button>
                 </a>
             </Header>
 
@@ -92,9 +90,7 @@ export default function FreelancePage() {
                             <CardTitle>Portfolio</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Tous les sites que tu as réalisés
-                            </p>
+                            <p className="text-muted-foreground">Tous les sites que tu as réalisés</p>
                         </CardContent>
                     </Card>
                 </Link>
@@ -105,9 +101,7 @@ export default function FreelancePage() {
                             <CardTitle>Revenus</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Graphiques et historique des revenus
-                            </p>
+                            <p className="text-muted-foreground">Graphiques et historique des revenus</p>
                         </CardContent>
                     </Card>
                 </Link>
@@ -118,9 +112,7 @@ export default function FreelancePage() {
                             <CardTitle>Projets</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Suivi des projets en cours
-                            </p>
+                            <p className="text-muted-foreground">Suivi des projets en cours</p>
                         </CardContent>
                     </Card>
                 </Link>
@@ -131,7 +123,10 @@ export default function FreelancePage() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle>Projets en cours</CardTitle>
-                        <Link href="/freelance/projects" className="text-sm text-freelance font-semibold hover:underline">
+                        <Link
+                            href="/freelance/projects"
+                            className="text-sm text-freelance font-semibold hover:underline"
+                        >
                             Voir tout →
                         </Link>
                     </div>

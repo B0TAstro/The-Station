@@ -6,7 +6,7 @@ export async function sendSubscriptionReminder(
     to: string,
     subscriptionName: string,
     amount: number,
-    daysUntil: number
+    daysUntil: number,
 ) {
     try {
         await resend.emails.send({

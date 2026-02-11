@@ -1,7 +1,7 @@
 'use client';
 
 import { Header } from '@/components/layout';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
+import { Card, CardContent, Button } from '@/components/ui';
 import { Plus, GripVertical } from 'lucide-react';
 import { useState } from 'react';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -9,13 +9,69 @@ import { PROJECT_STATUS_LABELS, type Project, type ProjectStatus } from '@/types
 
 // Demo projects
 const demoProjects: Project[] = [
-    { id: '1', name: 'Application Mobile Fitness', client: 'GymTech', status: 'relation', amount: 5000, created_at: '2026-02-05', user_id: '1' },
-    { id: '2', name: 'Site E-commerce Bijoux', client: 'Precious Stones', status: 'dev', amount: 3500, created_at: '2026-01-20', user_id: '1' },
-    { id: '3', name: 'Dashboard Analytics', client: 'DataCorp', status: 'dev', amount: 4200, created_at: '2026-01-10', user_id: '1' },
-    { id: '4', name: 'Refonte Blog', client: 'InnoPress', status: 'prod', amount: 1800, created_at: '2025-12-15', user_id: '1' },
-    { id: '5', name: 'Landing Page Produit', client: 'StartupXYZ', status: 'relance', amount: 800, created_at: '2025-11-20', user_id: '1' },
-    { id: '6', name: 'Site Vitrine Avocat', client: 'Cabinet Legal', status: 'done', amount: 2200, created_at: '2025-10-05', user_id: '1' },
-    { id: '7', name: 'Portfolio Artiste', client: 'Creative Mind', status: 'feedback', amount: 1500, created_at: '2025-09-15', user_id: '1' },
+    {
+        id: '1',
+        name: 'Application Mobile Fitness',
+        client: 'GymTech',
+        status: 'relation',
+        amount: 5000,
+        created_at: '2026-02-05',
+        user_id: '1',
+    },
+    {
+        id: '2',
+        name: 'Site E-commerce Bijoux',
+        client: 'Precious Stones',
+        status: 'dev',
+        amount: 3500,
+        created_at: '2026-01-20',
+        user_id: '1',
+    },
+    {
+        id: '3',
+        name: 'Dashboard Analytics',
+        client: 'DataCorp',
+        status: 'dev',
+        amount: 4200,
+        created_at: '2026-01-10',
+        user_id: '1',
+    },
+    {
+        id: '4',
+        name: 'Refonte Blog',
+        client: 'InnoPress',
+        status: 'prod',
+        amount: 1800,
+        created_at: '2025-12-15',
+        user_id: '1',
+    },
+    {
+        id: '5',
+        name: 'Landing Page Produit',
+        client: 'StartupXYZ',
+        status: 'relance',
+        amount: 800,
+        created_at: '2025-11-20',
+        user_id: '1',
+    },
+    {
+        id: '6',
+        name: 'Site Vitrine Avocat',
+        client: 'Cabinet Legal',
+        status: 'done',
+        amount: 2200,
+        created_at: '2025-10-05',
+        user_id: '1',
+    },
+    {
+        id: '7',
+        name: 'Portfolio Artiste',
+        client: 'Creative Mind',
+        status: 'feedback',
+        amount: 1500,
+        created_at: '2025-09-15',
+        user_id: '1',
+    },
 ];
 
 const statusOrder: ProjectStatus[] = ['relation', 'dev', 'prod', 'relance', 'feedback', 'done'];
@@ -23,20 +79,19 @@ const statusOrder: ProjectStatus[] = ['relation', 'dev', 'prod', 'relance', 'fee
 export default function ProjectsPage() {
     const [projects, setProjects] = useState(demoProjects);
 
-    const updateStatus = (id: string, newStatus: ProjectStatus) => {
-        setProjects((prev) =>
-            prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
-        );
+    const _updateStatus = (id: string, newStatus: ProjectStatus) => {
+        setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p)));
     };
 
-    const projectsByStatus = statusOrder.reduce((acc, status) => {
-        acc[status] = projects.filter((p) => p.status === status);
-        return acc;
-    }, {} as Record<ProjectStatus, Project[]>);
+    const projectsByStatus = statusOrder.reduce(
+        (acc, status) => {
+            acc[status] = projects.filter((p) => p.status === status);
+            return acc;
+        },
+        {} as Record<ProjectStatus, Project[]>,
+    );
 
-    const totalPipeline = projects
-        .filter((p) => p.status !== 'done')
-        .reduce((acc, p) => acc + p.amount, 0);
+    const totalPipeline = projects.filter((p) => p.status !== 'done').reduce((acc, p) => acc + p.amount, 0);
 
     return (
         <div>
@@ -56,7 +111,9 @@ export default function ProjectsPage() {
                             <p className="text-3xl font-semibold mt-1">{formatCurrency(totalPipeline)}</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-sm text-muted-foreground">{projects.filter((p) => p.status !== 'done').length} projets en cours</p>
+                            <p className="text-sm text-muted-foreground">
+                                {projects.filter((p) => p.status !== 'done').length} projets en cours
+                            </p>
                         </div>
                     </div>
                 </CardContent>
@@ -72,7 +129,9 @@ export default function ProjectsPage() {
                         <div key={status} className="min-h-96">
                             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
                                 <span className="text-lg">{statusInfo.emoji}</span>
-                                <h3 className="font-medium text-xs uppercase tracking-wider text-muted-foreground">{statusInfo.label}</h3>
+                                <h3 className="font-medium text-xs uppercase tracking-wider text-muted-foreground">
+                                    {statusInfo.label}
+                                </h3>
                                 <span className="ml-auto text-xs font-medium bg-muted rounded-full px-2 py-0.5">
                                     {statusProjects.length}
                                 </span>

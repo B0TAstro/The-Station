@@ -7,9 +7,7 @@ export async function middleware(request: NextRequest) {
 
     // Public routes that don't require auth
     const publicRoutes = ['/login', '/api/auth'];
-    const isPublicRoute = publicRoutes.some((route) =>
-        request.nextUrl.pathname.startsWith(route)
-    );
+    const isPublicRoute = publicRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
 
     if (!session && !isPublicRoute) {
         return NextResponse.redirect(new URL('/login', request.url));

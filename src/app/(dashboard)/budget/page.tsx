@@ -81,10 +81,10 @@ export default function BudgetPage() {
                             <CardTitle>Transactions</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Voir et classifier toutes tes transactions
-                            </p>
-                            <Badge variant="budget" className="mt-4">12 nouvelles</Badge>
+                            <p className="text-muted-foreground">Voir et classifier toutes tes transactions</p>
+                            <Badge variant="budget" className="mt-4">
+                                12 nouvelles
+                            </Badge>
                         </CardContent>
                     </Card>
                 </Link>
@@ -95,10 +95,10 @@ export default function BudgetPage() {
                             <CardTitle>Abonnements</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Gérer tes abonnements et rappels
-                            </p>
-                            <Badge variant="warning" className="mt-4">1 à renouveler</Badge>
+                            <p className="text-muted-foreground">Gérer tes abonnements et rappels</p>
+                            <Badge variant="warning" className="mt-4">
+                                1 à renouveler
+                            </Badge>
                         </CardContent>
                     </Card>
                 </Link>
@@ -109,9 +109,7 @@ export default function BudgetPage() {
                             <CardTitle>Graphiques</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">
-                                Visualiser ton budget sur le temps
-                            </p>
+                            <p className="text-muted-foreground">Visualiser ton budget sur le temps</p>
                         </CardContent>
                     </Card>
                 </Link>

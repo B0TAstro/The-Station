@@ -31,18 +31,19 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                         'bg-muted text-foreground border border-border hover:bg-card-hover': variant === 'secondary',
                         'bg-budget text-white hover:bg-budget-dark': variant === 'budget',
                         'bg-freelance text-white hover:bg-freelance-dark': variant === 'freelance',
-                        'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted': variant === 'ghost',
+                        'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted':
+                            variant === 'ghost',
                         'bg-red-600 text-white hover:bg-red-700': variant === 'danger',
                     },
 
-                    className
+                    className,
                 )}
                 {...props}
             >
                 {children}
             </button>
         );
-    }
+    },
 );
 
 Button.displayName = 'Button';

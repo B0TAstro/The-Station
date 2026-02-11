@@ -125,7 +125,12 @@ export default function BudgetGraphPage() {
                                         labelLine={false}
                                     >
                                         {categoryData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} stroke="#09090b" strokeWidth={2} />
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.color}
+                                                stroke="#09090b"
+                                                strokeWidth={2}
+                                            />
                                         ))}
                                     </Pie>
                                     <Tooltip
@@ -142,7 +147,10 @@ export default function BudgetGraphPage() {
                         </div>
                         <div className="space-y-2">
                             {categoryData.map((cat) => (
-                                <div key={cat.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <div
+                                    key={cat.name}
+                                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                                >
                                     <div className="flex items-center gap-3">
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
                                         <span className="text-sm">{cat.name}</span>

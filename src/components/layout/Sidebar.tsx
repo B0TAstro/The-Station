@@ -55,9 +55,7 @@ export function Sidebar() {
                 <div className="flex h-16 items-center px-5">
                     <Link href="/" className="flex items-center gap-2.5">
                         <Globe className="h-6 w-6 text-foreground" />
-                        <span className="text-base font-semibold tracking-tight">
-                            The Station
-                        </span>
+                        <span className="text-base font-semibold tracking-tight">The Station</span>
                     </Link>
                 </div>
 
@@ -74,7 +72,7 @@ export function Sidebar() {
                                         className={cn(
                                             'mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground',
                                             isBudget && 'text-budget/70',
-                                            isFreelance && 'text-freelance/70'
+                                            isFreelance && 'text-freelance/70',
                                         )}
                                     >
                                         {item.name}
@@ -92,10 +90,15 @@ export function Sidebar() {
                                                             'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm',
                                                             'transition-colors duration-150',
 
-                                                            isActive && isBudget && 'bg-budget/10 text-budget-light font-medium',
-                                                            isActive && isFreelance && 'bg-freelance/10 text-freelance-light font-medium',
+                                                            isActive &&
+                                                                isBudget &&
+                                                                'bg-budget/10 text-budget-light font-medium',
+                                                            isActive &&
+                                                                isFreelance &&
+                                                                'bg-freelance/10 text-freelance-light font-medium',
 
-                                                            !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                                            !isActive &&
+                                                                'text-muted-foreground hover:text-foreground hover:bg-muted',
                                                         )}
                                                     >
                                                         <Icon className="h-4 w-4" />
@@ -121,7 +124,7 @@ export function Sidebar() {
                                     'transition-colors duration-150',
 
                                     isActive && 'bg-foreground/10 text-foreground font-medium',
-                                    !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                    !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted',
                                 )}
                             >
                                 <Icon className="h-4 w-4" />
@@ -137,7 +140,7 @@ export function Sidebar() {
                         className={cn(
                             'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm',
                             'text-muted-foreground transition-colors duration-150',
-                            'hover:text-red-400 hover:bg-red-400/10'
+                            'hover:text-red-400 hover:bg-red-400/10',
                         )}
                     >
                         <LogOut className="h-4 w-4" />

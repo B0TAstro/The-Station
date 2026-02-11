@@ -46,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }),
     ],
     callbacks: {
-        async signIn({ user, account, profile }) {
+        async signIn({ user }) {
             const email = user.email;
 
             // Check whitelist for OAuth providers
@@ -56,7 +56,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             return false;
         },
-        async session({ session, token }) {
+        async session({ session }) {
             return session;
         },
         async jwt({ token, user }) {

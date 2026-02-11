@@ -1,7 +1,7 @@
 'use client';
 
 import { Header } from '@/components/layout';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
+import { Card, CardContent, CardHeader, Button, Badge } from '@/components/ui';
 import { Github, ExternalLink, Plus, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { SiteType, PortfolioSite } from '@/types';
@@ -100,9 +100,7 @@ export default function PortfolioPage() {
                                         <h3 className="font-medium text-foreground">{site.name}</h3>
                                         <p className="text-sm text-muted-foreground">{site.client}</p>
                                     </div>
-                                    <Badge className={`${typeInfo.color} border-transparent`}>
-                                        {typeInfo.label}
-                                    </Badge>
+                                    <Badge className={`${typeInfo.color} border-transparent`}>{typeInfo.label}</Badge>
                                 </div>
                             </CardHeader>
                             <CardContent>

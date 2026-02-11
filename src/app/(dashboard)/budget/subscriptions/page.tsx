@@ -2,7 +2,7 @@
 
 import { Header } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
-import { Bell, BellOff, Calendar, Trash2, Plus } from 'lucide-react';
+import { Bell, BellOff, Calendar, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
 
@@ -12,23 +12,17 @@ const demoSubscriptions = [
     { id: '2', name: 'Netflix', amount: 15.99, billing_date: 15, reminder_days: 5, active: true },
     { id: '3', name: 'Amazon Prime', amount: 6.99, billing_date: 1, reminder_days: 3, active: true },
     { id: '4', name: 'Adobe CC', amount: 59.99, billing_date: 20, reminder_days: 7, active: true },
-    { id: '5', name: 'GitHub Pro', amount: 4.00, billing_date: 10, reminder_days: 3, active: true },
-    { id: '6', name: 'Gym', amount: 29.90, billing_date: 5, reminder_days: 7, active: false },
+    { id: '5', name: 'GitHub Pro', amount: 4.0, billing_date: 10, reminder_days: 3, active: true },
+    { id: '6', name: 'Gym', amount: 29.9, billing_date: 5, reminder_days: 7, active: false },
 ];
 
 export default function SubscriptionsPage() {
     const [subscriptions, setSubscriptions] = useState(demoSubscriptions);
 
-    const totalMonthly = subscriptions
-        .filter((s) => s.active)
-        .reduce((acc, s) => acc + s.amount, 0);
+    const totalMonthly = subscriptions.filter((s) => s.active).reduce((acc, s) => acc + s.amount, 0);
 
     const toggleReminder = (id: string) => {
-        setSubscriptions((subs) =>
-            subs.map((s) =>
-                s.id === id ? { ...s, active: !s.active } : s
-            )
-        );
+        setSubscriptions((subs) => subs.map((s) => (s.id === id ? { ...s, active: !s.active } : s)));
     };
 
     const getNextBillingDate = (day: number) => {
@@ -113,8 +107,9 @@ export default function SubscriptionsPage() {
                             return (
                                 <div
                                     key={sub.id}
-                                    className={`flex items-center justify-between p-4 transition-colors ${!sub.active ? 'opacity-40' : ''
-                                        } ${isUpcoming && sub.active ? 'bg-budget-muted' : ''}`}
+                                    className={`flex items-center justify-between p-4 transition-colors ${
+                                        !sub.active ? 'opacity-40' : ''
+                                    } ${isUpcoming && sub.active ? 'bg-budget-muted' : ''}`}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-sm font-semibold">
@@ -131,15 +126,14 @@ export default function SubscriptionsPage() {
 
                                     <div className="flex items-center gap-4">
                                         {isUpcoming && sub.active && (
-                                            <Badge variant="warning">
-                                                Dans {daysUntil} jours
-                                            </Badge>
+                                            <Badge variant="warning">Dans {daysUntil} jours</Badge>
                                         )}
                                         <p className="font-semibold">{formatCurrency(sub.amount)}</p>
                                         <button
                                             onClick={() => toggleReminder(sub.id)}
-                                            className={`p-2 rounded-lg transition-colors hover:bg-muted ${sub.active ? 'text-foreground' : 'text-muted-foreground'
-                                                }`}
+                                            className={`p-2 rounded-lg transition-colors hover:bg-muted ${
+                                                sub.active ? 'text-foreground' : 'text-muted-foreground'
+                                            }`}
                                             title={sub.active ? 'Désactiver rappel' : 'Activer rappel'}
                                         >
                                             {sub.active ? (
