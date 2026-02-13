@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { createAdminClient } from '@/lib/supabase';
 import { rateLimit } from '@/lib/rate-limit';
+import { registerSchema } from '@/lib/validations/auth';
 
 export async function POST(request: NextRequest) {
     try {
@@ -19,18 +20,13 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { prenom, nom, pseudo, email, password } = body;
+        const validation = registerSchema.safeParse(body);
 
-        if (!prenom || !nom || !pseudo || !email || !password) {
-            return NextResponse.json({ error: 'Tous les champs sont obligatoires.' }, { status: 400 });
+        if (!validation.success) {
+            return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
         }
 
-        if (password.length < 6) {
-            return NextResponse.json(
-                { error: 'Le mot de passe doit contenir au moins 6 caractères.' },
-                { status: 400 },
-            );
-        }
+        const { prenom, nom, pseudo, email, password } = validation.data;
 
         const supabase = createAdminClient();
         const { data: existingUser } = await supabase.from('users').select('email').eq('email', email).single();

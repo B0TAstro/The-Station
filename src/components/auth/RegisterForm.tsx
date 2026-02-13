@@ -1,24 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui';
 import { Loader2, UserPlus, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import Image from 'next/image';
+import { registerSchema } from '@/lib/validations/auth';
+import gsap from 'gsap';
 
 interface RegisterFormProps {
     onToggle: () => void;
+    isVisible?: boolean;
 }
 
 const TOTAL_STEPS = 3;
 
-const fadeVariants = {
-    enter: { opacity: 0, x: 0 },
-    center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 0 },
-};
-
-export default function RegisterForm({ onToggle }: RegisterFormProps) {
+export default function RegisterForm({ onToggle, isVisible = false }: RegisterFormProps) {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         pseudo: '',
@@ -28,6 +24,37 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
         password: '',
     });
     const [loading, setLoading] = useState(false);
+    const formContainerRef = useRef<HTMLFormElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    // Initial Stagger Animation (Entry)
+    useEffect(() => {
+        if (!contentRef.current || !isVisible) return;
+
+        // Only run entry animation once, or when view becomes visible
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline();
+            tl.fromTo('.anim-item',
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out", delay: 0.1 }
+            );
+        }, contentRef);
+
+        return () => ctx.revert();
+    }, [isVisible]);
+
+    // GSAP Step Animation
+    useEffect(() => {
+        if (!formContainerRef.current) return;
+
+        // Animate elements entering - look for class we added
+        const elements = formContainerRef.current.querySelectorAll('.className-step > *');
+
+        gsap.fromTo(elements,
+            { opacity: 0, x: 10 },
+            { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: "power2.out" }
+        );
+    }, [step]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
@@ -50,11 +77,18 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
         setLoading(true);
         setError('');
 
+        const validation = registerSchema.safeParse(formData);
+        if (!validation.success) {
+            setError(validation.error.issues[0].message);
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(validation.data),
             });
 
             const data = await res.json();
@@ -75,6 +109,17 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
 
     const stepLabels = ['Identité', 'Pseudo', 'Sécurité'];
 
+    const successRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (success && successRef.current) {
+            gsap.fromTo(successRef.current,
+                { scale: 0.8, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+            );
+        }
+    }, [success]);
+
     if (success) {
         return (
             <div
@@ -84,10 +129,8 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
                 }}
             >
-                <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.4, type: 'spring' }}
+                <div
+                    ref={successRef}
                     className="space-y-5 flex flex-col items-center justify-center h-full"
                 >
                     <div
@@ -99,8 +142,7 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                     <div>
                         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Inscription réussie !</h1>
                         <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                            Ton compte a été créé. Il est en attente de validation par un administrateur. Tu pourras te
-                            connecter une fois autorisé.
+                            Ton compte a été créé. Il est en attente de validation par un administrateur. Tu pourras te connecter une fois autorisé.
                         </p>
                     </div>
                     <button
@@ -113,7 +155,7 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                     >
                         Retour à la connexion
                     </button>
-                </motion.div>
+                </div>
             </div>
         );
     }
@@ -125,9 +167,10 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                 background: 'linear-gradient(145deg, rgba(17,17,19,0.95) 0%, rgba(9,9,11,0.98) 100%)',
                 boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
             }}
+            ref={contentRef}
         >
             <div className="text-center mb-6">
-                <div className="relative inline-block mb-4">
+                <div className="relative inline-block mb-4 anim-item">
                     <Image
                         src="/logo-the-station.jpg"
                         alt="The Station"
@@ -140,11 +183,11 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                         style={{ background: 'linear-gradient(135deg, #ef4444, #f97316)' }}
                     />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Créer un compte</h1>
-                <p className="text-sm text-muted-foreground mt-1.5">Rejoins The Station</p>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight anim-item">Créer un compte</h1>
+                <p className="text-sm text-muted-foreground mt-1.5 anim-item">Rejoins The Station</p>
             </div>
 
-            <div className="flex items-center mb-8">
+            <div className="flex items-center mb-8 anim-item">
                 {stepLabels.map((label, i) => {
                     const stepNum = i + 1;
                     const isActive = stepNum === step;
@@ -169,8 +212,8 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                                         background: isDone
                                             ? 'linear-gradient(135deg, #ef4444, #dc2626)'
                                             : isActive
-                                              ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))'
-                                              : 'rgba(255,255,255,0.04)',
+                                                ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))'
+                                                : 'rgba(255,255,255,0.04)',
                                         color: isDone ? '#fff' : isActive ? '#f87171' : 'rgba(255,255,255,0.25)',
                                         boxShadow: isDone ? '0 0 12px rgba(239,68,68,0.3)' : 'none',
                                     }}
@@ -202,108 +245,80 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
             </div>
 
             {error && (
-                <div className="mb-5 p-3 rounded-xl bg-red-500/8 border border-red-500/15 text-red-400 text-sm">
+                <div className="mb-5 p-3 rounded-xl bg-red-500/8 border border-red-500/15 text-red-400 text-sm anim-item">
                     {error}
                 </div>
             )}
 
-            <form onSubmit={handleRegister}>
-                <div className="relative overflow-hidden min-h-[160px]">
-                    <AnimatePresence mode="wait">
-                        {step === 1 && (
-                            <motion.div
-                                key="step1"
-                                variants={fadeVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="space-y-4"
-                            >
-                                <Input
-                                    label="Prénom"
-                                    name="prenom"
-                                    value={formData.prenom}
-                                    onChange={handleChange}
-                                    placeholder="Jean"
-                                    required
-                                    autoFocus
-                                    className="focus:border-red-500 focus:ring-red-500/20"
-                                />
-                                <Input
-                                    label="Nom"
-                                    name="nom"
-                                    value={formData.nom}
-                                    onChange={handleChange}
-                                    placeholder="Dupont"
-                                    required
-                                    className="focus:border-red-500 focus:ring-red-500/20"
-                                />
-                            </motion.div>
-                        )}
+            <form onSubmit={handleRegister} className="min-h-[160px] anim-item" ref={formContainerRef}>
+                {step === 1 && (
+                    <div className="space-y-4 className-step">
+                        <Input
+                            label="Prénom"
+                            name="prenom"
+                            value={formData.prenom}
+                            onChange={handleChange}
+                            placeholder="Jean"
+                            required
+                            autoFocus
+                            className="focus:border-red-500 focus:ring-red-500/20"
+                        />
+                        <Input
+                            label="Nom"
+                            name="nom"
+                            value={formData.nom}
+                            onChange={handleChange}
+                            placeholder="Dupont"
+                            required
+                            className="focus:border-red-500 focus:ring-red-500/20"
+                        />
+                    </div>
+                )}
 
-                        {step === 2 && (
-                            <motion.div
-                                key="step2"
-                                variants={fadeVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="space-y-3"
-                            >
-                                <Input
-                                    label="Pseudo"
-                                    name="pseudo"
-                                    value={formData.pseudo}
-                                    onChange={handleChange}
-                                    placeholder="jdupont"
-                                    required
-                                    autoFocus
-                                    className="focus:border-red-500 focus:ring-red-500/20"
-                                />
-                                <p className="text-xs text-muted-foreground/60 pl-0.5">
-                                    Ce pseudo sera visible par les autres membres.
-                                </p>
-                            </motion.div>
-                        )}
+                {step === 2 && (
+                    <div className="space-y-3 className-step">
+                        <Input
+                            label="Pseudo"
+                            name="pseudo"
+                            value={formData.pseudo}
+                            onChange={handleChange}
+                            placeholder="jdupont"
+                            required
+                            autoFocus
+                            className="focus:border-red-500 focus:ring-red-500/20"
+                        />
+                        <p className="text-xs text-muted-foreground/60 pl-0.5">
+                            Ce pseudo sera visible par les autres membres.
+                        </p>
+                    </div>
+                )}
 
-                        {step === 3 && (
-                            <motion.div
-                                key="step3"
-                                variants={fadeVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                className="space-y-4"
-                            >
-                                <Input
-                                    label="Email"
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="jean.dupont@example.com"
-                                    required
-                                    autoFocus
-                                    className="focus:border-red-500 focus:ring-red-500/20"
-                                />
-                                <Input
-                                    label="Mot de passe"
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    placeholder="••••••••"
-                                    required
-                                    minLength={6}
-                                    className="focus:border-red-500 focus:ring-red-500/20"
-                                />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                {step === 3 && (
+                    <div className="space-y-4 className-step">
+                        <Input
+                            label="Email"
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="jean.dupont@example.com"
+                            required
+                            autoFocus
+                            className="focus:border-red-500 focus:ring-red-500/20"
+                        />
+                        <Input
+                            label="Mot de passe"
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="••••••••"
+                            required
+                            minLength={6}
+                            className="focus:border-red-500 focus:ring-red-500/20"
+                        />
+                    </div>
+                )}
 
                 <div className="flex gap-3 mt-6">
                     {step > 1 && (
@@ -356,9 +371,12 @@ export default function RegisterForm({ onToggle }: RegisterFormProps) {
                 </div>
             </form>
 
-            <div className="pt-5 mt-5 border-t border-white/[0.04] text-center text-sm">
+            <div className="pt-5 mt-5 border-t border-white/[0.04] text-center text-sm anim-item">
                 <span className="text-muted-foreground/60">Déjà un compte ? </span>
-                <button onClick={onToggle} className="font-medium transition-colors" style={{ color: '#f87171' }}>
+                <button
+                    onClick={onToggle}
+                    className="font-medium transition-colors text-red-400 hover:text-red-300"
+                >
                     Se connecter
                 </button>
             </div>

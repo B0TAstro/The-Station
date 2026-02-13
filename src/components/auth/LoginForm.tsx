@@ -1,27 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Input } from '@/components/ui';
-import { Github, Mail, Loader2, ArrowLeft, KeyRound } from 'lucide-react';
+import { Input } from '@/components/ui';
+import gsap from 'gsap';
+import ForgotPasswordForm from './ForgotPasswordForm';
+import { Github, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface LoginFormProps {
     onToggle: () => void;
+    isVisible?: boolean;
 }
 
-export default function LoginForm({ onToggle }: LoginFormProps) {
+export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     const [showForgot, setShowForgot] = useState(false);
-    const [forgotEmail, setForgotEmail] = useState('');
-    const [forgotLoading, setForgotLoading] = useState(false);
-    const [forgotSuccess, setForgotSuccess] = useState(false);
-    const [forgotError, setForgotError] = useState('');
+    const containerRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    // Initial Stagger Animation
+    useEffect(() => {
+        if (!contentRef.current || !isVisible || showForgot) return;
+
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline();
+            tl.fromTo('.anim-item',
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out", delay: 0.1 }
+            );
+        }, contentRef);
+
+        return () => ctx.revert();
+    }, [isVisible, showForgot]);
+
+    // GSAP Animation for view switch (Login <-> Forgot)
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        gsap.fromTo(containerRef.current,
+            { opacity: 0, x: showForgot ? 20 : -20 },
+            { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }
+        );
+    }, [showForgot]);
 
     const handleCredentialsLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,33 +76,6 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
         }
     };
 
-    const handleForgotPassword = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setForgotLoading(true);
-        setForgotError('');
-
-        try {
-            const res = await fetch('/api/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: forgotEmail }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setForgotError(data.error || 'Une erreur est survenue.');
-                return;
-            }
-
-            setForgotSuccess(true);
-        } catch {
-            setForgotError('Une erreur est survenue.');
-        } finally {
-            setForgotLoading(false);
-        }
-    };
-
     return (
         <div
             className="w-full rounded-2xl border border-white/[0.06] p-6 sm:p-8"
@@ -85,9 +83,10 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                 background: 'linear-gradient(145deg, rgba(17,17,19,0.95) 0%, rgba(9,9,11,0.98) 100%)',
                 boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
             }}
+            ref={contentRef}
         >
             <div className="text-center mb-8">
-                <div className="relative inline-block mb-4">
+                <div className="relative inline-block mb-4 anim-item">
                     <Image
                         src="/logo-the-station.jpg"
                         alt="The Station"
@@ -100,102 +99,24 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                         style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
                     />
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight">The Station</h1>
-                <p className="text-sm text-muted-foreground mt-1.5">
+                <h1 className="text-2xl font-bold tracking-tight anim-item">The Station</h1>
+                <p className="text-sm text-muted-foreground mt-1.5 anim-item">
                     {showForgot ? 'Réinitialiser le mot de passe' : 'Connecte-toi pour accéder à ton espace'}
                 </p>
             </div>
 
-            <AnimatePresence mode="wait">
+            <div ref={containerRef}>
                 {showForgot ? (
-                    <motion.div
-                        key="forgot"
-                        initial={{ x: 200, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -200, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {forgotSuccess ? (
-                            <div className="text-center space-y-5">
-                                <div
-                                    className="mx-auto w-14 h-14 rounded-full flex items-center justify-center"
-                                    style={{
-                                        background:
-                                            'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05))',
-                                    }}
-                                >
-                                    <Mail className="h-6 w-6 text-green-400" />
-                                </div>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.
-                                </p>
-                                <Button
-                                    variant="secondary"
-                                    className="w-full"
-                                    onClick={() => {
-                                        setShowForgot(false);
-                                        setForgotSuccess(false);
-                                        setForgotEmail('');
-                                    }}
-                                >
-                                    <ArrowLeft className="h-4 w-4 mr-2" />
-                                    Retour à la connexion
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-5">
-                                {forgotError && (
-                                    <div className="p-3 rounded-xl bg-red-500/8 border border-red-500/15 text-red-400 text-sm">
-                                        {forgotError}
-                                    </div>
-                                )}
-                                <form onSubmit={handleForgotPassword} className="space-y-4">
-                                    <Input
-                                        label="Email"
-                                        type="email"
-                                        value={forgotEmail}
-                                        onChange={(e) => setForgotEmail(e.target.value)}
-                                        placeholder="ton@email.com"
-                                        required
-                                        autoFocus
-                                    />
-                                    <Button type="submit" className="w-full h-11" disabled={forgotLoading}>
-                                        {forgotLoading ? (
-                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                        ) : (
-                                            <KeyRound className="h-4 w-4 mr-2" />
-                                        )}
-                                        Envoyer le lien
-                                    </Button>
-                                </form>
-                                <button
-                                    onClick={() => {
-                                        setShowForgot(false);
-                                        setForgotError('');
-                                    }}
-                                    className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                    <ArrowLeft className="h-3.5 w-3.5" />
-                                    Retour
-                                </button>
-                            </div>
-                        )}
-                    </motion.div>
+                    <ForgotPasswordForm onBack={() => setShowForgot(false)} />
                 ) : (
-                    <motion.div
-                        key="login"
-                        initial={{ x: -200, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 200, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
+                    <div>
                         {error && (
-                            <div className="mb-5 p-3 rounded-xl bg-red-500/8 border border-red-500/15 text-red-400 text-sm">
+                            <div className="mb-5 p-3 rounded-xl bg-red-500/8 border border-red-500/15 text-red-400 text-sm anim-item">
                                 {error}
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-3 mb-6">
+                        <div className="grid grid-cols-2 gap-3 mb-6 anim-item">
                             <button
                                 onClick={() => signIn('google', { redirectTo: '/' })}
                                 disabled={loading}
@@ -232,7 +153,7 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                             </button>
                         </div>
 
-                        <div className="relative mb-6">
+                        <div className="relative mb-6 anim-item">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-white/[0.06]" />
                             </div>
@@ -244,23 +165,27 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                         </div>
 
                         <form onSubmit={handleCredentialsLogin} className="space-y-4 mb-3">
-                            <Input
-                                label="Email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="ton@email.com"
-                                required
-                            />
-                            <Input
-                                label="Mot de passe"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                required
-                            />
-                            <div className="flex justify-end">
+                            <div className="anim-item">
+                                <Input
+                                    label="Email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="ton@email.com"
+                                    required
+                                />
+                            </div>
+                            <div className="anim-item">
+                                <Input
+                                    label="Mot de passe"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+                            <div className="flex justify-end anim-item">
                                 <button
                                     type="button"
                                     onClick={() => setShowForgot(true)}
@@ -272,7 +197,7 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-50"
+                                className="w-full h-11 rounded-xl text-sm font-semibold text-white transition-all duration-200 disabled:opacity-50 anim-item"
                                 style={{
                                     background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                                     boxShadow: '0 0 20px rgba(59,130,246,0.25), 0 1px 3px rgba(0,0,0,0.3)',
@@ -284,15 +209,12 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                                         Connexion...
                                     </span>
                                 ) : (
-                                    <span className="flex items-center justify-center">
-                                        <Mail className="h-4 w-4 mr-2" />
-                                        Se connecter
-                                    </span>
+                                    <span className="flex items-center justify-center">Se connecter</span>
                                 )}
                             </button>
                         </form>
 
-                        <div className="pt-5 border-t border-white/[0.04] text-center text-sm">
+                        <div className="pt-5 border-t border-white/[0.04] text-center text-sm anim-item">
                             <span className="text-muted-foreground/60">Pas encore de compte ? </span>
                             <button
                                 onClick={onToggle}
@@ -301,9 +223,9 @@ export default function LoginForm({ onToggle }: LoginFormProps) {
                                 S&apos;inscrire
                             </button>
                         </div>
-                    </motion.div>
+                    </div>
                 )}
-            </AnimatePresence>
+            </div>
         </div>
     );
 }
