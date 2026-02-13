@@ -2,10 +2,10 @@
 
 import AuthFlipCard from '@/components/auth/AuthFlipCard';
 
-export default function LoginPage() {
+export default function RegisterPage() {
     return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
-            <AuthFlipCard initialView="login" />
+            <AuthFlipCard initialView="register" />
         </div>
     );
 }
