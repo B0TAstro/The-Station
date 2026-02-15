@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import gsap from 'gsap';
@@ -14,6 +15,7 @@ export default function AuthFlipCard({ initialView = 'login' }: AuthFlipCardProp
     const [isFlipped, setIsFlipped] = useState(initialView === 'register');
     const containerRef = useRef<HTMLDivElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     useEffect(() => {
         if (!cardRef.current) return;
@@ -22,13 +24,16 @@ export default function AuthFlipCard({ initialView = 'login' }: AuthFlipCardProp
 
         gsap.to(cardRef.current, {
             rotationY: rotation,
-            duration: 0.3,
+            duration: 0.5,
             ease: 'power2.inOut',
         });
     }, [isFlipped]);
 
     const toggleView = () => {
-        setIsFlipped(!isFlipped);
+        const newFlippedState = !isFlipped;
+        setIsFlipped(newFlippedState);
+        const newPath = newFlippedState ? '/register' : '/login';
+        router.push(newPath);
     };
 
     return (
