@@ -64,7 +64,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
 
     return (
         <>
-            {/* Mobile top bar */}
             <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4 md:hidden">
                 <Link href="/" className="flex items-center gap-2">
                     <Image
@@ -84,19 +83,16 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </button>
             </div>
 
-            {/* Mobile overlay */}
             {mobileOpen && (
                 <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setMobileOpen(false)} />
             )}
 
-            {/* Mobile slide-out menu */}
             <aside
                 className={cn(
                     'fixed left-0 top-14 z-50 h-[calc(100vh-3.5rem)] w-60 border-r border-border bg-background transition-transform duration-200 md:hidden',
                     mobileOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
-                {/* User profile mobile */}
                 {session?.user && (
                     <div className="border-b border-border p-4 flex items-center gap-3">
                         {session.user.image ? (
@@ -205,20 +201,14 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Desktop sidebar */}
             <aside
                 className={cn(
                     'fixed left-0 top-0 z-40 hidden h-screen border-r border-border bg-background transition-all duration-200 md:flex md:flex-col',
-                    expanded ? 'w-60' : 'w-[68px]',
+                    expanded ? 'w-60' : 'w-17',
                 )}
             >
                 <div className="flex h-full flex-col">
-                    <div
-                        className={cn(
-                            'flex h-16 items-center flex-shrink-0',
-                            expanded ? 'px-5' : 'justify-center px-2',
-                        )}
-                    >
+                    <div className={cn('flex h-16 items-center shrink-0', expanded ? 'px-5' : 'justify-center px-2')}>
                         <Link href="/" className="flex items-center gap-2.5">
                             <Image
                                 src="/logo-the-station.jpg"
@@ -235,7 +225,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         </Link>
                     </div>
 
-                    {/* User profile desktop */}
                     {session?.user && (
                         <div
                             className={cn(
@@ -255,10 +244,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                         alt={session.user.name || 'User'}
                                         width={24}
                                         height={24}
-                                        className="rounded-full flex-shrink-0"
+                                        className="rounded-full shrink-0"
                                     />
                                 ) : (
-                                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
                                         <UserIcon className="h-3 w-3" />
                                     </div>
                                 )}
@@ -382,12 +371,11 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Main content wrapper */}
             <main
                 className={cn(
                     'min-h-screen bg-background transition-all duration-200 ease-in-out',
                     'p-4 pt-20 md:p-8 md:pt-8',
-                    expanded ? 'md:ml-60' : 'md:ml-[68px]',
+                    expanded ? 'md:ml-60' : 'md:ml-17',
                 )}
             >
                 {children}

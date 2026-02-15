@@ -10,10 +10,8 @@ export const useAuthAnimation = (
         if (!ref.current || !isVisible) return;
 
         const ctx = gsap.context(() => {
-            // Kill any existing animations on these targets to prevent conflicts
             gsap.killTweensOf('.anim-item');
 
-            // Reset state
             gsap.set('.anim-item', { y: 20, opacity: 0 });
 
             const tl = gsap.timeline();
