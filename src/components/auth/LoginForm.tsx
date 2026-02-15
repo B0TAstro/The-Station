@@ -7,6 +7,7 @@ import gsap from 'gsap';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { Github, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useAuthAnimation } from '@/hooks/useAuthAnimation';
 
 interface LoginFormProps {
     onToggle: () => void;
@@ -24,27 +25,16 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
     const contentRef = useRef<HTMLDivElement>(null);
 
     // Initial Stagger Animation
-    useEffect(() => {
-        if (!contentRef.current || !isVisible || showForgot) return;
-
-        const ctx = gsap.context(() => {
-            const tl = gsap.timeline();
-            tl.fromTo('.anim-item',
-                { y: 20, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out", delay: 0.1 }
-            );
-        }, contentRef);
-
-        return () => ctx.revert();
-    }, [isVisible, showForgot]);
+    useAuthAnimation(contentRef, isVisible && !showForgot);
 
     // GSAP Animation for view switch (Login <-> Forgot)
     useEffect(() => {
         if (!containerRef.current) return;
 
-        gsap.fromTo(containerRef.current,
+        gsap.fromTo(
+            containerRef.current,
             { opacity: 0, x: showForgot ? 20 : -20 },
-            { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }
+            { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' },
         );
     }, [showForgot]);
 

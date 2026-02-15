@@ -6,6 +6,7 @@ import { Loader2, UserPlus, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import Image from 'next/image';
 import { registerSchema } from '@/lib/validations/auth';
 import gsap from 'gsap';
+import { useAuthAnimation } from '@/hooks/useAuthAnimation';
 
 interface RegisterFormProps {
     onToggle: () => void;
@@ -27,21 +28,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
     const formContainerRef = useRef<HTMLFormElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
-    // Initial Stagger Animation (Entry)
-    useEffect(() => {
-        if (!contentRef.current || !isVisible) return;
-
-        // Only run entry animation once, or when view becomes visible
-        const ctx = gsap.context(() => {
-            const tl = gsap.timeline();
-            tl.fromTo('.anim-item',
-                { y: 20, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out", delay: 0.1 }
-            );
-        }, contentRef);
-
-        return () => ctx.revert();
-    }, [isVisible]);
+    // Shared Entry Animation
+    useAuthAnimation(contentRef, isVisible);
 
     // GSAP Step Animation
     useEffect(() => {
@@ -50,11 +38,13 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         // Animate elements entering - look for class we added
         const elements = formContainerRef.current.querySelectorAll('.className-step > *');
 
-        gsap.fromTo(elements,
+        gsap.fromTo(
+            elements,
             { opacity: 0, x: 10 },
-            { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: "power2.out" }
+            { opacity: 1, x: 0, duration: 0.3, stagger: 0.1, ease: 'power2.out' },
         );
     }, [step]);
+
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
@@ -113,9 +103,10 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
     useEffect(() => {
         if (success && successRef.current) {
-            gsap.fromTo(successRef.current,
+            gsap.fromTo(
+                successRef.current,
                 { scale: 0.8, opacity: 0 },
-                { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+                { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' },
             );
         }
     }, [success]);
@@ -129,10 +120,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
                 }}
             >
-                <div
-                    ref={successRef}
-                    className="space-y-5 flex flex-col items-center justify-center h-full"
-                >
+                <div ref={successRef} className="space-y-5 flex flex-col items-center justify-center h-full">
                     <div
                         className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center"
                         style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05))' }}
@@ -142,7 +130,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                     <div>
                         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Inscription réussie !</h1>
                         <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                            Ton compte a été créé. Il est en attente de validation par un administrateur. Tu pourras te connecter une fois autorisé.
+                            Ton compte a été créé. Il est en attente de validation par un administrateur. Tu pourras te
+                            connecter une fois autorisé.
                         </p>
                     </div>
                     <button
@@ -187,17 +176,18 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                 <p className="text-sm text-muted-foreground mt-1.5 anim-item">Rejoins The Station</p>
             </div>
 
-            <div className="flex items-center mb-8 anim-item">
+            <div className="flex items-center justify-between mb-8 anim-item w-full relative">
                 {stepLabels.map((label, i) => {
                     const stepNum = i + 1;
                     const isActive = stepNum === step;
                     const isDone = stepNum < step;
 
                     return (
-                        <div key={label} className="flex items-center flex-1">
+                        <div key={label} className="contents">
+                            {/* Connector Line (Left) */}
                             {i > 0 && (
                                 <div
-                                    className="h-px flex-1 transition-colors duration-300"
+                                    className="h-px flex-1 mx-2 transition-colors duration-300"
                                     style={{
                                         background: isDone
                                             ? 'linear-gradient(90deg, #ef4444, rgba(239,68,68,0.3))'
@@ -205,44 +195,41 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                                     }}
                                 />
                             )}
-                            <div className="flex flex-col items-center gap-1.5">
+
+                            {/* Step Indicator */}
+                            <div className="flex flex-col items-center gap-1.5 z-10">
                                 <div
                                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shrink-0"
                                     style={{
                                         background: isDone
                                             ? 'linear-gradient(135deg, #ef4444, #dc2626)'
                                             : isActive
-                                                ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))'
-                                                : 'rgba(255,255,255,0.04)',
+                                              ? 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))'
+                                              : 'rgba(255,255,255,0.04)',
                                         color: isDone ? '#fff' : isActive ? '#f87171' : 'rgba(255,255,255,0.25)',
                                         boxShadow: isDone ? '0 0 12px rgba(239,68,68,0.3)' : 'none',
+                                        border: isActive ? '1px solid rgba(239,68,68,0.3)' : '1px solid transparent',
                                     }}
                                 >
                                     {isDone ? <Check className="h-3.5 w-3.5" /> : stepNum}
                                 </div>
                                 <span
-                                    className="text-[10px] font-medium transition-colors duration-300 whitespace-nowrap"
+                                    className="text-[10px] font-medium transition-colors duration-300 whitespace-nowrap absolute -bottom-5"
                                     style={{
                                         color: isDone || isActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)',
+                                        transform: 'translateX(0)', // Keep centralized
                                     }}
                                 >
                                     {label}
                                 </span>
                             </div>
-                            {i < stepLabels.length - 1 && (
-                                <div
-                                    className="h-px flex-1 transition-colors duration-300"
-                                    style={{
-                                        background: isDone
-                                            ? 'linear-gradient(90deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1))'
-                                            : 'rgba(255,255,255,0.06)',
-                                    }}
-                                />
-                            )}
                         </div>
                     );
                 })}
             </div>
+
+            {/* Spacer for absolute labels */}
+            <div className="h-4 mb-2" />
 
             {error && (
                 <div className="mb-5 p-3 rounded-xl bg-red-500/8 border border-red-500/15 text-red-400 text-sm anim-item">
@@ -373,10 +360,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
             <div className="pt-5 mt-5 border-t border-white/[0.04] text-center text-sm anim-item">
                 <span className="text-muted-foreground/60">Déjà un compte ? </span>
-                <button
-                    onClick={onToggle}
-                    className="font-medium transition-colors text-red-400 hover:text-red-300"
-                >
+                <button onClick={onToggle} className="font-medium transition-colors text-red-500 hover:text-red-600">
                     Se connecter
                 </button>
             </div>
