@@ -2,8 +2,8 @@ import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
-import { createAdminClient } from '@/lib/supabase';
-import { rateLimit } from '@/lib/rate-limit';
+import { createAdminClient } from '@/lib/server/supabase-admin';
+import { rateLimit } from '@/lib/middleware/rate-limit';
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
     ...authConfig,

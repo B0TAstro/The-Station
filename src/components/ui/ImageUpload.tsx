@@ -67,7 +67,7 @@ export default function ImageUpload({ value, onChange, maxSize = 2, className }:
                     <div
                         className={cn(
                             'w-20 h-20 rounded-full border-2 border-dashed flex items-center justify-center overflow-hidden transition-colors',
-                            preview ? 'border-accent' : 'border-border hover:border-accent/50',
+                            preview ? 'border-freelance' : 'border-border hover:border-freelance/50',
                         )}
                     >
                         {preview ? (

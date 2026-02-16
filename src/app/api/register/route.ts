@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { createAdminClient } from '@/lib/supabase';
-import { rateLimit } from '@/lib/rate-limit';
-import { registerSchema } from '@/lib/validations/auth';
+import { createAdminClient } from '@/lib/server/supabase-admin';
+import { rateLimit } from '@/lib/middleware/rate-limit';
+import { registerSchema } from '@/lib/schemas/auth';
 
 export async function POST(request: NextRequest) {
     try {
@@ -13,10 +13,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!limiter.success) {
-            return NextResponse.json(
-                { error: 'Trop de tentatives. Réessayez dans quelques minutes.' },
-                { status: 429 },
-            );
+            return NextResponse.json({ error: '❌ Trop de tentatives, réessayez plus tard !' }, { status: 429 });
         }
 
         const body = await request.json();
@@ -49,13 +46,13 @@ export async function POST(request: NextRequest) {
         ]);
 
         if (insertError) {
-            console.error('Registration insert error:', insertError);
-            return NextResponse.json({ error: "Une erreur est survenue lors de l'inscription." }, { status: 500 });
+            console.error('❌ Registration insert error:', insertError);
+            return NextResponse.json({ error: "Erreur serveur à l'inscription." }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });
     } catch (err) {
-        console.error('Registration error:', err);
+        console.error('❌ Registration error:', err);
         return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
     }
 }

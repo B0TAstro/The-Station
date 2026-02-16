@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { createAdminClient } from '@/lib/supabase';
-import { rateLimit } from '@/lib/rate-limit';
+import { createAdminClient } from '@/lib/server/supabase-admin';
+import { rateLimit } from '@/lib/middleware/rate-limit';
 
 export async function POST(request: NextRequest) {
     try {
@@ -12,10 +12,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!limiter.success) {
-            return NextResponse.json(
-                { error: 'Trop de tentatives. Réessayez dans quelques minutes.' },
-                { status: 429 },
-            );
+            return NextResponse.json({ error: '❌ Trop de tentatives, réessayez plus tard !' }, { status: 429 });
         }
 
         const body = await request.json();
@@ -27,7 +24,7 @@ export async function POST(request: NextRequest) {
 
         if (password.length < 6) {
             return NextResponse.json(
-                { error: 'Le mot de passe doit contenir au moins 6 caractères.' },
+                { error: '❌ Le mot de passe doit contenir au moins 6 caractères!' },
                 { status: 400 },
             );
         }
@@ -44,7 +41,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (new Date(user.reset_token_expiry) < new Date()) {
-            return NextResponse.json({ error: 'Ce lien a expiré. Demandez un nouveau lien.' }, { status: 400 });
+            return NextResponse.json({ error: 'Lien a expiré. Demandez un nouveau lien.' }, { status: 400 });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -58,13 +55,13 @@ export async function POST(request: NextRequest) {
             .eq('id', user.id);
 
         if (updateError) {
-            console.error('Failed to reset password:', updateError);
+            console.error('❌ Failed to reset password:', updateError);
             return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });
     } catch (err) {
-        console.error('Reset password error:', err);
+        console.error('❌ Reset password error:', err);
         return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
     }
 }

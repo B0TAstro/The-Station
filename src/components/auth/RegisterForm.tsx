@@ -5,7 +5,7 @@ import { Input } from '@/components/ui';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { Loader2, UserPlus, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { registerStep1Schema, registerStep2Schema, registerSchema } from '@/lib/validations/auth';
+import { registerStep1Schema, registerStep2Schema, registerSchema } from '@/lib/schemas/auth';
 import gsap from 'gsap';
 import { useAuthAnimation } from '@/hooks/useAuthAnimation';
 import { AuthSuccess } from './AuthSuccess';
@@ -100,7 +100,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
             let avatarUrl = null;
 
             if (avatarFile) {
-                const { supabase } = await import('@/lib/supabase');
+                const { supabase } = await import('@/lib/client/supabase');
 
                 const fileExt = avatarFile.name.split('.').pop();
                 const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -190,7 +190,6 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight anim-item">Créer un compte</h1>
                 <p className="text-sm text-muted-foreground mt-1.5 anim-item">Rejoins The Station</p>
             </div>
-
 
             <RegisterStepper currentStep={step} steps={stepLabels} />
 
@@ -289,8 +288,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             onClick={nextStep}
                             className="flex-1 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-semibold text-white shadow-[0_4px_12px_var(--freelance-muted)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                             style={{
-                                background:
-                                    'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
+                                background: 'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
                             }}
                         >
                             Suivant
@@ -302,8 +300,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             disabled={loading}
                             className="flex-1 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--freelance-muted)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                             style={{
-                                background:
-                                    'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
+                                background: 'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
                             }}
                         >
                             {loading ? (
@@ -330,5 +327,4 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
             </div>
         </div>
     );
-
 }

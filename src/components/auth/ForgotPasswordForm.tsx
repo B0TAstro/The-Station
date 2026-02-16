@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button, Input } from '@/components/ui';
 import { Mail, Loader2, ArrowLeft, KeyRound } from 'lucide-react';
-import { forgotPasswordSchema } from '@/lib/validations/auth';
+import { forgotPasswordSchema } from '@/lib/schemas/auth';
 
 interface ForgotPasswordFormProps {
     onBack: () => void;
