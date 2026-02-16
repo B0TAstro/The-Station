@@ -20,7 +20,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                 });
 
                 if (!limiter.success) {
-                    throw new Error('Trop de tentatives. Réessayez dans quelques minutes.');
+                    throw new Error('Trop de tentatives, réessayez plus tard !');
                 }
 
                 const parsedCredentials = z
@@ -32,6 +32,12 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                     const supabase = createAdminClient();
 
                     const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
+
+                    console.log('🔍 User data from DB:', {
+                        id: user?.id,
+                        pseudo: user?.pseudo,
+                        avatar_url: user?.avatar_url,
+                    });
 
                     if (error || !user) {
                         return null;
@@ -45,12 +51,15 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                     const passwordsMatch = await bcrypt.compare(password, user.password);
 
                     if (passwordsMatch) {
-                        return {
+                        const userObj = {
                             id: user.id,
                             name: user.pseudo || user.nom,
                             email: user.email,
-                            image: null,
+                            image: user.avatar_url || null,
+                            avatar_url: user.avatar_url || null,
                         };
+                        console.log('✅ Returning user object:', userObj);
+                        return userObj;
                     }
                 }
                 return null;
@@ -62,7 +71,12 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (user) {
                 token.id = user.id;
                 token.pseudo = user.name;
-                token.avatar_url = null;
+                token.avatar_url = user.avatar_url || null;
+                console.log('🔑 JWT token updated:', {
+                    id: token.id,
+                    pseudo: token.pseudo,
+                    avatar_url: token.avatar_url,
+                });
             }
             return token;
         },

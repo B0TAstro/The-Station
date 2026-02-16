@@ -26,7 +26,7 @@ export function AuthSuccess({ title, message, onAction, actionLabel }: AuthSucce
 
     return (
         <div
-            className="w-full rounded-2xl border border-(--border) p-6 sm:p-8 text-center h-105 flex flex-col justify-center"
+            className="w-full rounded-2xl border border-border p-6 sm:p-8 text-center flex flex-col justify-center"
             style={{
                 background: 'linear-gradient(145deg, var(--card) 0%, rgba(9,9,11,0.98) 100%)',
                 boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
@@ -37,7 +37,7 @@ export function AuthSuccess({ title, message, onAction, actionLabel }: AuthSucce
                     className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center"
                     style={{ background: 'linear-gradient(135deg, var(--freelance-muted), rgba(239,68,68,0.05))' }}
                 >
-                    <Check className="h-8 w-8 text-(--freelance)" />
+                    <Check className="h-8 w-8 text-freelance" />
                 </div>
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{title}</h1>

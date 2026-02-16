@@ -66,7 +66,7 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
 
     return (
         <div
-            className="w-full rounded-2xl border border-(--border) p-6 sm:p-8"
+            className="w-full rounded-2xl border border-border p-6 sm:p-8 flex flex-col"
             style={{
                 background: 'linear-gradient(145deg, var(--card) 0%, rgba(9,9,11,0.98) 100%)',
                 boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
@@ -93,13 +93,13 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                 </p>
             </div>
 
-            <div ref={containerRef}>
+            <div className="flex-1 flex flex-col justify-center" ref={containerRef}>
                 {showForgot ? (
                     <ForgotPasswordForm onBack={() => setShowForgot(false)} />
                 ) : (
                     <div>
                         {error && (
-                            <div className="mb-5 p-3 rounded-xl bg-(--budget-muted) border border-(--budget)/20 text-(--budget-light) text-sm anim-item">
+                            <div className="mb-5 p-3 rounded-xl bg-budget-muted border border-budget/20 text-budget-light text-sm anim-item">
                                 {error}
                             </div>
                         )}
@@ -113,7 +113,7 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="ton@email.com"
                                     required
-                                    className="border-white/10 focus:border-(--budget) focus:ring-(--budget)/20 bg-white/5"
+                                    className="border-white/10 focus:border-budget focus:ring-budget/20 bg-white/5"
                                 />
                             </div>
                             <div className="anim-item">
@@ -124,14 +124,14 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
-                                    className="border-white/10 focus:border-(--budget) focus:ring-(--budget)/20 bg-white/5"
+                                    className="border-white/10 focus:border-budget focus:ring-budget/20 bg-white/5"
                                 />
                             </div>
                             <div className="flex justify-end anim-item">
                                 <button
                                     type="button"
                                     onClick={() => setShowForgot(true)}
-                                    className="text-xs font-medium text-muted-foreground hover:text-(--budget) transition-colors"
+                                    className="text-xs font-medium text-muted-foreground hover:text-budget transition-colors"
                                 >
                                     Mot de passe oublié ?
                                 </button>
@@ -148,11 +148,11 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                             </button>
                         </form>
 
-                        <div className="pt-5 mt-5 border-t border-(--border) text-center text-sm anim-item">
+                        <div className="pt-5 mt-5 border-t border-border text-center text-sm anim-item">
                             <span className="text-muted-foreground/60">Pas encore de compte ? </span>
                             <button
                                 onClick={onToggle}
-                                className="font-medium transition-colors text-(--budget) hover:text-(--budget-dark)"
+                                className="font-medium transition-colors text-budget hover:text-budget-dark"
                             >
                                 S&apos;inscrire
                             </button>

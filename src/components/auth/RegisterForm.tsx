@@ -5,7 +5,7 @@ import { Input } from '@/components/ui';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { Loader2, UserPlus, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { registerSchema } from '@/lib/validations/auth';
+import { registerStep1Schema, registerStep2Schema, registerSchema } from '@/lib/validations/auth';
 import gsap from 'gsap';
 import { useAuthAnimation } from '@/hooks/useAuthAnimation';
 import { AuthSuccess } from './AuthSuccess';
@@ -54,6 +54,28 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
     const nextStep = () => {
         setError('');
+
+        if (step === 1) {
+            const validation = registerStep1Schema.safeParse({
+                prenom: formData.prenom,
+                nom: formData.nom,
+            });
+            if (!validation.success) {
+                setError(validation.error.issues[0].message);
+                return;
+            }
+        }
+
+        if (step === 2) {
+            const validation = registerStep2Schema.safeParse({
+                pseudo: formData.pseudo,
+            });
+            if (!validation.success) {
+                setError(validation.error.issues[0].message);
+                return;
+            }
+        }
+
         setStep((s) => Math.min(s + 1, TOTAL_STEPS));
     };
 
@@ -144,7 +166,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
     return (
         <div
-            className="w-full rounded-2xl border border-(--border) p-6 sm:p-8"
+            className="w-full rounded-2xl border border-border p-6 sm:p-8 flex flex-col"
             style={{
                 background: 'linear-gradient(145deg, var(--card) 0%, rgba(9,9,11,0.98) 100%)',
                 boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 25px 50px -12px rgba(0,0,0,0.5)',
@@ -169,12 +191,13 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                 <p className="text-sm text-muted-foreground mt-1.5 anim-item">Rejoins The Station</p>
             </div>
 
+
             <RegisterStepper currentStep={step} steps={stepLabels} />
 
             <div className="h-4 mb-2" />
 
             {error && (
-                <div className="mb-5 p-3 rounded-xl bg-(--freelance-muted) border border-(--freelance)/20 text-(--freelance-light) text-sm anim-item">
+                <div className="mb-5 p-3 rounded-xl bg-freelance-muted border border-freelance/20 text-freelance-light text-sm anim-item">
                     {error}
                 </div>
             )}
@@ -188,7 +211,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             value={formData.prenom}
                             onChange={handleChange}
                             placeholder="John"
-                            className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
+                            className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                         <Input
                             label="Nom"
@@ -196,7 +219,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             value={formData.nom}
                             onChange={handleChange}
                             placeholder="Doe"
-                            className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
+                            className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                     </div>
                 )}
@@ -216,7 +239,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             onChange={handleChange}
                             placeholder="johndoe"
                             autoFocus
-                            className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
+                            className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                     </div>
                 )}
@@ -230,7 +253,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="john@example.com"
-                            className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
+                            className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                         <Input
                             label="Mot de passe"
@@ -240,7 +263,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             onChange={handleChange}
                             placeholder="••••••••"
                             autoFocus
-                            className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
+                            className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                         <div className="text-xs text-muted-foreground">
                             Au moins 8 caractères, une majuscule et un chiffre.
@@ -253,7 +276,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                         <button
                             type="button"
                             onClick={prevStep}
-                            className="flex-1 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-medium border border-(--border) bg-white/3 text-foreground hover:bg-white/6 transition-all duration-200"
+                            className="flex-1 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-medium border border-border bg-white/3 text-foreground hover:bg-white/6 transition-all duration-200"
                         >
                             <ArrowLeft className="h-4 w-4" />
                             Retour
@@ -266,7 +289,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             onClick={nextStep}
                             className="flex-1 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-semibold text-white shadow-[0_4px_12px_var(--freelance-muted)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                             style={{
-                                background: 'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
+                                background:
+                                    'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
                             }}
                         >
                             Suivant
@@ -278,7 +302,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             disabled={loading}
                             className="flex-1 h-11 rounded-xl flex items-center justify-center gap-1.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--freelance-muted)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                             style={{
-                                background: 'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
+                                background:
+                                    'linear-gradient(135deg, var(--freelance) 0%, var(--freelance-dark) 100%)',
                             }}
                         >
                             {loading ? (
@@ -294,15 +319,16 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                 </div>
             </form>
 
-            <div className="pt-5 mt-5 border-t border-(--border) text-center text-sm anim-item">
+            <div className="pt-5 mt-5 border-t border-border text-center text-sm anim-item">
                 <span className="text-muted-foreground/60">Déjà un compte ? </span>
                 <button
                     onClick={onToggle}
-                    className="font-medium transition-colors text-(--freelance) hover:text-(--freelance-dark)"
+                    className="font-medium transition-colors text-freelance hover:text-freelance-dark"
                 >
                     Se connecter
                 </button>
             </div>
         </div>
     );
+
 }

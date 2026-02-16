@@ -95,9 +95,9 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
             >
                 {session?.user && (
                     <div className="border-b border-border p-4 flex items-center gap-3">
-                        {session.user.image ? (
+                        {session?.user.avatar_url ? (
                             <Image
-                                src={session.user.image}
+                                src={session.user.avatar_url}
                                 alt={session.user.name || 'User'}
                                 width={32}
                                 height={32}
@@ -108,7 +108,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                 <UserIcon className="h-4 w-4" />
                             </div>
                         )}
-                        <div className="overflow-hidden">
+                        <div className="overflow-hidden flex-1">
                             <p className="text-sm font-medium truncate">{session.user.name}</p>
                             <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
                         </div>
@@ -238,9 +238,9 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                     expanded ? 'gap-3 p-2' : 'justify-center p-2',
                                 )}
                             >
-                                {session.user.image ? (
+                                {session.user.avatar_url ? (
                                     <Image
-                                        src={session.user.image}
+                                        src={session.user.avatar_url}
                                         alt={session.user.name || 'User'}
                                         width={24}
                                         height={24}
@@ -252,7 +252,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                     </div>
                                 )}
                                 {expanded && (
-                                    <div className="overflow-hidden">
+                                    <div className="overflow-hidden flex-1">
                                         <p className="text-xs font-medium truncate">{session.user.name}</p>
                                     </div>
                                 )}

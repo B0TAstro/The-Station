@@ -1,4 +1,4 @@
-import { Header } from '@/components/layout';
+import { Header } from '@/components/global';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Wallet, Briefcase, TrendingUp, Clock } from 'lucide-react';
 import Link from 'next/link';

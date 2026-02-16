@@ -1,6 +1,6 @@
 'use client';
 
-import { Header } from '@/components/layout';
+import { Header } from '@/components/global';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { ExternalLink, BarChart3 } from 'lucide-react';
 

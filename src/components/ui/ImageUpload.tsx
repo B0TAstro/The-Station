@@ -67,7 +67,7 @@ export default function ImageUpload({ value, onChange, maxSize = 2, className }:
                     <div
                         className={cn(
                             'w-20 h-20 rounded-full border-2 border-dashed flex items-center justify-center overflow-hidden transition-colors',
-                            preview ? 'border-(--accent)' : 'border-(--border) hover:border-(--accent)/50',
+                            preview ? 'border-accent' : 'border-border hover:border-accent/50',
                         )}
                     >
                         {preview ? (
@@ -91,7 +91,7 @@ export default function ImageUpload({ value, onChange, maxSize = 2, className }:
                 <div className="flex-1">
                     <label
                         htmlFor="avatar-upload"
-                        className="cursor-pointer inline-block px-4 py-2 rounded-lg border border-(--border) bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
+                        className="cursor-pointer inline-block px-4 py-2 rounded-lg border border-border bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
                     >
                         {preview ? 'Changer la photo' : 'Ajouter une photo'}
                     </label>
