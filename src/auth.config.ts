@@ -28,21 +28,10 @@ export const authConfig = {
             return false;
         },
         async session({ session, token }) {
-            if (session.user?.email) {
-                const { createAdminClient } = await import('@/lib/supabase');
-                const supabase = createAdminClient();
-
-                const { data: user } = await supabase
-                    .from('users')
-                    .select('avatar_url, pseudo, id')
-                    .eq('email', session.user.email)
-                    .single();
-
-                if (user) {
-                    session.user.avatar_url = user.avatar_url;
-                    session.user.pseudo = user.pseudo;
-                    session.user.id = user.id;
-                }
+            if (token) {
+                session.user.id = token.id as string;
+                session.user.pseudo = token.pseudo as string;
+                session.user.avatar_url = token.avatar_url as string | undefined;
             }
             return session;
         },

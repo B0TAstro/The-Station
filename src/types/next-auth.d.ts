@@ -14,3 +14,11 @@ declare module 'next-auth' {
         avatar_url?: string;
     }
 }
+
+declare module 'next-auth/jwt' {
+    interface JWT {
+        id?: string;
+        pseudo?: string;
+        avatar_url?: string;
+    }
+}

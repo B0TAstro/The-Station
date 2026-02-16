@@ -57,4 +57,14 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             },
         }),
     ],
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.pseudo = user.name;
+                token.avatar_url = null;
+            }
+            return token;
+        },
+    },
 });
