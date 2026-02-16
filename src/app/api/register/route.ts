@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
         }
 
-        const { prenom, nom, pseudo, email, password } = validation.data;
+        const { prenom, nom, pseudo, email, password, avatar_url } = body;
 
         const supabase = createAdminClient();
         const { data: existingUser } = await supabase.from('users').select('email').eq('email', email).single();
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
                 pseudo,
                 email,
                 password: hashedPassword,
+                avatar_url: avatar_url || null,
                 authorized: false,
             },
         ]);

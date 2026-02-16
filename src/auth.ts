@@ -1,8 +1,6 @@
 import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
 import Credentials from 'next-auth/providers/credentials';
-import Google from 'next-auth/providers/google';
-import GitHub from 'next-auth/providers/github';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase';
 import { rateLimit } from '@/lib/rate-limit';
@@ -10,8 +8,6 @@ import { rateLimit } from '@/lib/rate-limit';
 export const { auth, signIn, signOut, handlers } = NextAuth({
     ...authConfig,
     providers: [
-        Google,
-        GitHub,
         Credentials({
             async authorize(credentials, request) {
                 const ip =

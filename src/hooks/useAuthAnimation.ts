@@ -10,12 +10,15 @@ export const useAuthAnimation = (
         if (!ref.current || !isVisible) return;
 
         const ctx = gsap.context(() => {
-            gsap.killTweensOf('.anim-item');
+            const items = ref.current?.querySelectorAll('.anim-item');
+            if (!items || items.length === 0) return;
 
-            gsap.set('.anim-item', { y: 20, opacity: 0 });
+            gsap.killTweensOf(items);
+
+            gsap.set(items, { y: 20, opacity: 0 });
 
             const tl = gsap.timeline();
-            tl.to('.anim-item', {
+            tl.to(items, {
                 y: 0,
                 opacity: 1,
                 duration: 0.4,

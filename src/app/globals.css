@@ -24,7 +24,9 @@
     --success: #22c55e;
     --warning: #eab308;
     --danger: #ef4444;
+}
 
+@theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-muted: var(--muted);

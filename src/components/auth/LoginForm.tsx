@@ -8,8 +8,6 @@ import ForgotPasswordForm from './ForgotPasswordForm';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useAuthAnimation } from '@/hooks/useAuthAnimation';
-import { SocialButtons } from './SocialButtons';
-import { AuthDivider } from './AuthDivider';
 
 interface LoginFormProps {
     onToggle: () => void;
@@ -105,9 +103,6 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                                 {error}
                             </div>
                         )}
-
-                        <SocialButtons loading={loading} />
-                        <AuthDivider />
 
                         <form onSubmit={handleCredentialsLogin} className="space-y-4 mb-2">
                             <div className="anim-item">

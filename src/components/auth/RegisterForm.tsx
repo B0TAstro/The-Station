@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui';
+import ImageUpload from '@/components/ui/ImageUpload';
 import { Loader2, UserPlus, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { registerSchema } from '@/lib/validations/auth';
@@ -26,6 +27,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         email: '',
         password: '',
     });
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const formContainerRef = useRef<HTMLFormElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -73,10 +75,42 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         }
 
         try {
+            let avatarUrl = null;
+
+            if (avatarFile) {
+                const { supabase } = await import('@/lib/supabase');
+
+                const fileExt = avatarFile.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                const { data, error: uploadError } = await supabase.storage
+                    .from('avatars')
+                    .upload(fileName, avatarFile, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    });
+
+                if (uploadError) {
+                    console.error('Avatar upload error:', uploadError);
+                    setError("Erreur lors de l'upload de l'avatar");
+                    setLoading(false);
+                    return;
+                }
+
+                const {
+                    data: { publicUrl },
+                } = supabase.storage.from('avatars').getPublicUrl(data.path);
+
+                avatarUrl = publicUrl;
+            }
+
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(validation.data),
+                body: JSON.stringify({
+                    ...validation.data,
+                    avatar_url: avatarUrl,
+                }),
             });
 
             const data = await res.json();
@@ -169,6 +203,12 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
                 {step === 2 && (
                     <div className="space-y-4 className-step">
+                        <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-2">
+                                Photo de profil
+                            </label>
+                            <ImageUpload value={null} onChange={setAvatarFile} />
+                        </div>
                         <Input
                             label="Pseudo"
                             name="pseudo"
@@ -178,6 +218,11 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             autoFocus
                             className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
                         />
+                    </div>
+                )}
+
+                {step === 3 && (
+                    <div className="space-y-4 className-step">
                         <Input
                             label="Email"
                             type="email"
@@ -187,11 +232,6 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             placeholder="john@example.com"
                             className="border-white/10 focus:border-(--freelance) focus:ring-(--freelance)/20 bg-white/5"
                         />
-                    </div>
-                )}
-
-                {step === 3 && (
-                    <div className="space-y-4 className-step">
                         <Input
                             label="Mot de passe"
                             type="password"
