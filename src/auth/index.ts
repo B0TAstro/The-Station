@@ -1,9 +1,19 @@
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import { authConfig } from './config';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/server/supabase-admin';
 import { rateLimit } from '@/lib/middleware/rate-limit';
+
+class EmailNotFoundError extends CredentialsSignin {
+    code = 'EMAIL_NOT_FOUND';
+}
+class UnauthorizedAccountError extends CredentialsSignin {
+    code = 'UNAUTHORIZED_ACCOUNT';
+}
+class WrongPasswordError extends CredentialsSignin {
+    code = 'WRONG_PASSWORD';
+}
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
     ...authConfig,
@@ -34,11 +44,11 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                     const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
 
                     if (error || !user) {
-                        return null;
+                        throw new EmailNotFoundError();
                     }
 
                     if (!user.authorized) {
-                        throw new Error('Compte en attente de validation.');
+                        throw new UnauthorizedAccountError();
                     }
 
                     const bcrypt = await import('bcryptjs');
@@ -53,6 +63,8 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                             avatar_url: user.avatar_url || null,
                         };
                     }
+
+                    throw new WrongPasswordError();
                 }
                 return null;
             },

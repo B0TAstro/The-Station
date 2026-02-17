@@ -33,6 +33,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
     const contentRef = useRef<HTMLDivElement>(null);
 
     useAuthAnimation(contentRef, isVisible);
+
     useEffect(() => {
         if (!formContainerRef.current) return;
 
@@ -45,6 +46,10 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         );
     }, [step]);
 
+    useEffect(() => {
+        setError('');
+    }, [step]);
+
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -54,7 +59,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         setTouched({ ...touched, [e.target.name]: true });
     };
 
-    const nextStep = () => {
+    const nextStep = async () => {
         setError('');
 
         if (step === 1) {
@@ -68,6 +73,30 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
             if (!formData.pseudo.trim()) {
                 setError('Le pseudo est requis');
                 return;
+            }
+
+            setLoading(true);
+            try {
+                const res = await fetch('/api/check-availability', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pseudo: formData.pseudo }),
+                });
+
+                const data = await res.json();
+
+                if (!data.available && data.field === 'pseudo') {
+                    setError('Ce pseudo est déjà pris');
+                    setLoading(false);
+                    return;
+                }
+            } catch (err) {
+                console.error('Error checking pseudo:', err);
+                setError('Erreur lors de la vérification du pseudo');
+                setLoading(false);
+                return;
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -84,22 +113,29 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         setLoading(true);
         setError('');
 
-        if (!formData.email.trim()) {
-            setError("L'email est requis");
-            setLoading(false);
-            return;
-        }
-        if (!formData.password.trim()) {
-            setError('Le mot de passe est requis');
-            setLoading(false);
-            return;
-        }
-
         const validation = registerSchema.safeParse(formData);
         if (!validation.success) {
             setError(validation.error.issues[0].message);
             setLoading(false);
             return;
+        }
+
+        try {
+            const checkRes = await fetch('/api/check-availability', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email }),
+            });
+
+            const checkData = await checkRes.json();
+
+            if (!checkData.available && checkData.field === 'email') {
+                setError('Cet email est déjà utilisé');
+                setLoading(false);
+                return;
+            }
+        } catch (err) {
+            console.error('Error checking email:', err);
         }
 
         try {
@@ -280,9 +316,6 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             variant="freelance"
                             className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
-                        <div className="text-xs text-muted-foreground">
-                            Au moins 8 caractères, une majuscule et un chiffre.
-                        </div>
                     </div>
                 )}
 

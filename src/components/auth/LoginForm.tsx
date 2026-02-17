@@ -48,16 +48,31 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                 redirect: false,
             });
 
+            console.log('SignIn result:', result);
+
             if (result?.error) {
-                if (result.error.includes('Trop de tentatives')) {
+                console.log('Error received:', result.error);
+                console.log('Error code:', (result as any).code);
+
+                const errorMsg = result.error;
+                const errorCode = (result as any).code;
+
+                if (errorMsg.includes('Trop de tentatives')) {
                     setError('Trop de tentatives. Réessayez dans quelques minutes.');
+                } else if (errorCode === 'EMAIL_NOT_FOUND' || errorMsg.includes('EMAIL_NOT_FOUND')) {
+                    setError("User n'existe pas -> creer un compte");
+                } else if (errorCode === 'UNAUTHORIZED_ACCOUNT' || errorMsg.includes('UNAUTHORIZED_ACCOUNT')) {
+                    setError('Compte non autorisé');
+                } else if (errorCode === 'WRONG_PASSWORD' || errorMsg.includes('WRONG_PASSWORD')) {
+                    setError('Mot de passe incorrect');
                 } else {
-                    setError('Email non autorisé ou mot de passe incorrect');
+                    setError('Une erreur est survenue');
                 }
             } else {
                 window.location.href = '/';
             }
-        } catch {
+        } catch (err) {
+            console.error('Catch error:', err);
             setError('Une erreur est survenue');
         } finally {
             setLoading(false);
