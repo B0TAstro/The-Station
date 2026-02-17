@@ -14,7 +14,7 @@ export interface Subscription {
     id: string;
     name: string;
     amount: number;
-    billing_date: number; // day of month
+    billing_date: number;
     reminder_days: number;
     next_reminder: string;
     user_id: string;

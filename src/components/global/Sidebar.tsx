@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 import {
     LayoutDashboard,
     Wallet,
@@ -20,6 +21,7 @@ import {
     PanelLeftOpen,
     Menu,
     X,
+    User as UserIcon,
 } from 'lucide-react';
 
 const navigation = [
@@ -52,12 +54,16 @@ const navigation = [
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const { data: session } = useSession();
     const [expanded, setExpanded] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
 
+    const handleSignOut = () => {
+        signOut({ callbackUrl: '/login' });
+    };
+
     return (
         <>
-            {/* Mobile top bar */}
             <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4 md:hidden">
                 <Link href="/" className="flex items-center gap-2">
                     <Image
@@ -77,18 +83,38 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </button>
             </div>
 
-            {/* Mobile overlay */}
             {mobileOpen && (
                 <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setMobileOpen(false)} />
             )}
 
-            {/* Mobile slide-out menu */}
             <aside
                 className={cn(
                     'fixed left-0 top-14 z-50 h-[calc(100vh-3.5rem)] w-60 border-r border-border bg-background transition-transform duration-200 md:hidden',
                     mobileOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
+                {session?.user && (
+                    <div className="border-b border-border p-4 flex items-center gap-3">
+                        {session?.user.avatar_url ? (
+                            <Image
+                                src={session.user.avatar_url}
+                                alt={session.user.name || 'User'}
+                                width={32}
+                                height={32}
+                                className="rounded-full"
+                            />
+                        ) : (
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                                <UserIcon className="h-4 w-4" />
+                            </div>
+                        )}
+                        <div className="overflow-hidden flex-1">
+                            <p className="text-sm font-medium truncate">{session.user.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
+                        </div>
+                    </div>
+                )}
+
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-4">
                     {navigation.map((item) => {
                         if ('items' in item) {
@@ -162,6 +188,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
 
                 <div className="border-t border-border p-3">
                     <button
+                        onClick={handleSignOut}
                         className={cn(
                             'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm',
                             'text-muted-foreground transition-colors duration-150',
@@ -174,15 +201,14 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Desktop sidebar */}
             <aside
                 className={cn(
-                    'fixed left-0 top-0 z-40 hidden h-screen border-r border-border bg-background transition-all duration-200 md:block',
-                    expanded ? 'w-60' : 'w-[68px]',
+                    'fixed left-0 top-0 z-40 hidden h-screen border-r border-border bg-background transition-all duration-200 md:flex md:flex-col',
+                    expanded ? 'w-60' : 'w-17',
                 )}
             >
                 <div className="flex h-full flex-col">
-                    <div className={cn('flex h-16 items-center', expanded ? 'px-5' : 'justify-center px-2')}>
+                    <div className={cn('flex h-16 items-center shrink-0', expanded ? 'px-5' : 'justify-center px-2')}>
                         <Link href="/" className="flex items-center gap-2.5">
                             <Image
                                 src="/logo-the-station.jpg"
@@ -198,6 +224,41 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                             )}
                         </Link>
                     </div>
+
+                    {session?.user && (
+                        <div
+                            className={cn(
+                                'border-b border-border transition-all duration-200',
+                                expanded ? 'p-3' : 'p-2',
+                            )}
+                        >
+                            <div
+                                className={cn(
+                                    'flex items-center rounded-lg bg-muted/50',
+                                    expanded ? 'gap-3 p-2' : 'justify-center p-2',
+                                )}
+                            >
+                                {session.user.avatar_url ? (
+                                    <Image
+                                        src={session.user.avatar_url}
+                                        alt={session.user.name || 'User'}
+                                        width={24}
+                                        height={24}
+                                        className="rounded-full shrink-0"
+                                    />
+                                ) : (
+                                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                        <UserIcon className="h-3 w-3" />
+                                    </div>
+                                )}
+                                {expanded && (
+                                    <div className="overflow-hidden flex-1">
+                                        <p className="text-xs font-medium truncate">{session.user.name}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     <nav className={cn('flex-1 space-y-1 overflow-y-auto pt-2', expanded ? 'px-3' : 'px-2')}>
                         {navigation.map((item) => {
@@ -274,7 +335,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         })}
                     </nav>
 
-                    <div className={cn('border-t border-border', expanded ? 'p-3' : 'p-2')}>
+                    <div className={cn('border-t border-border mt-auto', expanded ? 'p-3' : 'p-2')}>
                         <button
                             onClick={() => setExpanded(!expanded)}
                             title={expanded ? 'Réduire' : 'Agrandir'}
@@ -295,6 +356,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                             )}
                         </button>
                         <button
+                            onClick={handleSignOut}
                             className={cn(
                                 'flex w-full items-center rounded-lg text-sm',
                                 'text-muted-foreground transition-colors duration-150',
@@ -309,12 +371,11 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Main content wrapper */}
             <main
                 className={cn(
                     'min-h-screen bg-background transition-all duration-200 ease-in-out',
                     'p-4 pt-20 md:p-8 md:pt-8',
-                    expanded ? 'md:ml-60' : 'md:ml-[68px]',
+                    expanded ? 'md:ml-60' : 'md:ml-17',
                 )}
             >
                 {children}

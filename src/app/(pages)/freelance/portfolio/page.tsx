@@ -1,6 +1,6 @@
 'use client';
 
-import { Header } from '@/components/layout';
+import { Header } from '@/components/global';
 import { Card, CardContent, CardHeader, Button, Badge } from '@/components/ui';
 import { Github, ExternalLink, Plus, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';

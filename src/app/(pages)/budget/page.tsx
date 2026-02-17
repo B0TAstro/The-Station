@@ -1,4 +1,4 @@
-import { Header } from '@/components/layout';
+import { Header } from '@/components/global';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
 import { TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
 import Link from 'next/link';

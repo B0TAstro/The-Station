@@ -1,6 +1,6 @@
 'use client';
 
-import { Header } from '@/components/layout';
+import { Header } from '@/components/global';
 import { Card, CardContent, Button, Badge, Input } from '@/components/ui';
 import { RefreshCcw } from 'lucide-react';
 import { useState } from 'react';
