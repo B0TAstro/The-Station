@@ -5,19 +5,8 @@ export const loginSchema = z.object({
     password: z.string().min(1, 'Mot de passe requis'),
 });
 
-export const registerStep1Schema = z.object({
-    prenom: z.string().min(2, 'Prénom trop court'),
-    nom: z.string().min(2, 'Nom trop court'),
-});
-
-export const registerStep2Schema = z.object({
-    pseudo: z.string().min(3, 'Pseudo trop court (min 3 car.)'),
-});
-
 export const registerSchema = z.object({
-    prenom: z.string().min(2, 'Prénom trop court'),
-    nom: z.string().min(2, 'Nom trop court'),
-    pseudo: z.string().min(3, 'Pseudo trop court (min 3 car.)'),
+    pseudo: z.string(),
     email: z.string().email('Email invalide'),
     password: z.string().min(6, 'Le mot de passe doit faire au moins 6 caractères'),
 });

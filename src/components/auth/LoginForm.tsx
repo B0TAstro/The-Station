@@ -113,6 +113,7 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="ton@email.com"
                                     required
+                                    variant="budget"
                                     className="border-white/10 focus:border-budget focus:ring-budget/20 bg-white/5"
                                 />
                             </div>
@@ -124,6 +125,7 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
+                                    variant="budget"
                                     className="border-white/10 focus:border-budget focus:ring-budget/20 bg-white/5"
                                 />
                             </div>

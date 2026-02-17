@@ -32,6 +32,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Cet email est déjà utilisé.' }, { status: 409 });
         }
 
+        const { data: existingPseudo } = await supabase.from('users').select('pseudo').eq('pseudo', pseudo).single();
+
+        if (existingPseudo) {
+            return NextResponse.json({ error: 'Ce pseudo est déjà utilisé.' }, { status: 409 });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const { error: insertError } = await supabase.from('users').insert([
             {

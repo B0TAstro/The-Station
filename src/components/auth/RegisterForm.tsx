@@ -5,7 +5,7 @@ import { Input } from '@/components/ui';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { Loader2, UserPlus, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { registerStep1Schema, registerStep2Schema, registerSchema } from '@/lib/schemas/auth';
+import { registerSchema } from '@/lib/schemas/auth';
 import gsap from 'gsap';
 import { useAuthAnimation } from '@/hooks/useAuthAnimation';
 import { AuthSuccess } from './AuthSuccess';
@@ -47,31 +47,26 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        setTouched({ ...touched, [e.target.name]: true });
     };
 
     const nextStep = () => {
         setError('');
 
         if (step === 1) {
-            const validation = registerStep1Schema.safeParse({
-                prenom: formData.prenom,
-                nom: formData.nom,
-            });
-            if (!validation.success) {
-                setError(validation.error.issues[0].message);
+            if (!formData.prenom.trim() || !formData.nom.trim()) {
+                setError('Le prénom et le nom sont requis');
                 return;
             }
         }
 
         if (step === 2) {
-            const validation = registerStep2Schema.safeParse({
-                pseudo: formData.pseudo,
-            });
-            if (!validation.success) {
-                setError(validation.error.issues[0].message);
+            if (!formData.pseudo.trim()) {
+                setError('Le pseudo est requis');
                 return;
             }
         }
@@ -88,6 +83,17 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         e.preventDefault();
         setLoading(true);
         setError('');
+
+        if (!formData.email.trim()) {
+            setError("L'email est requis");
+            setLoading(false);
+            return;
+        }
+        if (!formData.password.trim()) {
+            setError('Le mot de passe est requis');
+            setLoading(false);
+            return;
+        }
 
         const validation = registerSchema.safeParse(formData);
         if (!validation.success) {
@@ -201,7 +207,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                 </div>
             )}
 
-            <form onSubmit={handleRegister} className="min-h-40 anim-item" ref={formContainerRef}>
+            <form onSubmit={handleRegister} className="min-h-40 anim-item" ref={formContainerRef} noValidate>
                 {step === 1 && (
                     <div className="space-y-4 className-step">
                         <Input
@@ -210,6 +216,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             value={formData.prenom}
                             onChange={handleChange}
                             placeholder="John"
+                            required
+                            variant="freelance"
                             className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                         <Input
@@ -218,6 +226,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             value={formData.nom}
                             onChange={handleChange}
                             placeholder="Doe"
+                            required
+                            variant="freelance"
                             className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                     </div>
@@ -238,6 +248,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             onChange={handleChange}
                             placeholder="johndoe"
                             autoFocus
+                            required
+                            variant="freelance"
                             className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                     </div>
@@ -252,6 +264,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="john@example.com"
+                            required
+                            variant="freelance"
                             className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                         <Input
@@ -262,6 +276,8 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                             onChange={handleChange}
                             placeholder="••••••••"
                             autoFocus
+                            required
+                            variant="freelance"
                             className="border-white/10 focus:border-freelance focus:ring-freelance/20 bg-white/5"
                         />
                         <div className="text-xs text-muted-foreground">
