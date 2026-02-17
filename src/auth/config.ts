@@ -27,13 +27,5 @@ export const authConfig = {
 
             return false;
         },
-        async session({ session, token }) {
-            if (token) {
-                session.user.id = token.id as string;
-                session.user.pseudo = token.pseudo as string;
-                session.user.avatar_url = token.avatar_url as string | undefined;
-            }
-            return session;
-        },
     },
 } satisfies NextAuthConfig;

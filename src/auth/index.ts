@@ -33,12 +33,6 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
 
                     const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
 
-                    console.log('🔍 User data from DB:', {
-                        id: user?.id,
-                        pseudo: user?.pseudo,
-                        avatar_url: user?.avatar_url,
-                    });
-
                     if (error || !user) {
                         return null;
                     }
@@ -51,15 +45,13 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                     const passwordsMatch = await bcrypt.compare(password, user.password);
 
                     if (passwordsMatch) {
-                        const userObj = {
+                        return {
                             id: user.id,
                             name: user.pseudo || user.nom,
                             email: user.email,
                             image: user.avatar_url || null,
                             avatar_url: user.avatar_url || null,
                         };
-                        console.log('✅ Returning user object:', userObj);
-                        return userObj;
                     }
                 }
                 return null;
@@ -71,14 +63,17 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (user) {
                 token.id = user.id;
                 token.pseudo = user.name;
-                token.avatar_url = user.avatar_url || null;
-                console.log('🔑 JWT token updated:', {
-                    id: token.id,
-                    pseudo: token.pseudo,
-                    avatar_url: token.avatar_url,
-                });
+                token.avatar_url = (user as any).avatar_url || null;
             }
             return token;
+        },
+        async session({ session, token }) {
+            if (token) {
+                session.user.id = token.id as string;
+                session.user.pseudo = token.pseudo as string;
+                session.user.avatar_url = token.avatar_url as string | undefined;
+            }
+            return session;
         },
     },
 });
