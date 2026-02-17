@@ -3,6 +3,7 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface ImageUploadProps {
     value?: string | null;
@@ -71,7 +72,7 @@ export default function ImageUpload({ value, onChange, maxSize = 2, className }:
                         )}
                     >
                         {preview ? (
-                            <img src={preview} alt="Avatar preview" className="w-full h-full object-cover" />
+                            <Image src={preview} alt="Avatar preview" width={80} height={80} className="object-cover" />
                         ) : (
                             <Upload className="h-6 w-6 text-muted-foreground" />
                         )}

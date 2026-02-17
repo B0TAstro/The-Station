@@ -75,7 +75,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (user) {
                 token.id = user.id;
                 token.pseudo = user.name;
-                token.avatar_url = (user as any).avatar_url || null;
+                token.avatar_url = (user as { avatar_url?: string | null }).avatar_url || null;
             }
             return token;
         },

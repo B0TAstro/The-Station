@@ -52,10 +52,10 @@ export default function LoginForm({ onToggle, isVisible = true }: LoginFormProps
 
             if (result?.error) {
                 console.log('Error received:', result.error);
-                console.log('Error code:', (result as any).code);
+                console.log('Error code:', (result as { code?: string }).code);
 
                 const errorMsg = result.error;
-                const errorCode = (result as any).code;
+                const errorCode = (result as { code?: string }).code;
 
                 if (errorMsg.includes('Trop de tentatives')) {
                     setError('Trop de tentatives. Réessayez dans quelques minutes.');
