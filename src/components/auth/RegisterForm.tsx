@@ -77,7 +77,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
 
             setLoading(true);
             try {
-                const res = await fetch('/api/check-availability', {
+                const res = await fetch('/api/auth/availability', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pseudo: formData.pseudo }),
@@ -121,7 +121,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
         }
 
         try {
-            const checkRes = await fetch('/api/check-availability', {
+            const checkRes = await fetch('/api/auth/availability', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: formData.email }),
@@ -168,7 +168,7 @@ export default function RegisterForm({ onToggle, isVisible = false }: RegisterFo
                 avatarUrl = publicUrl;
             }
 
-            const res = await fetch('/api/register', {
+            const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

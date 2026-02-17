@@ -22,9 +22,10 @@ A private, all-in-one web app to manage your bank account, track freelance proje
 
 ### 🔐 Auth
 
-- Email/password login with whitelist
-- Google & GitHub OAuth
+- Email/password login with credentials provider
+- JWT-based session (7 days)
 - Middleware-protected routes
+- Rate limiting on auth endpoints
 
 ### 🎨 Design
 
@@ -35,17 +36,17 @@ A private, all-in-one web app to manage your bank account, track freelance proje
 
 ## 🛠 Tech Stack
 
-| Layer     | Tech                               |
-| --------- | ---------------------------------- |
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Styling   | Tailwind CSS 4                     |
-| Auth      | NextAuth v5 (beta)                 |
-| Database  | Supabase (PostgreSQL)              |
-| Banking   | Plaid API                          |
-| Email     | Resend                             |
-| Charts    | Recharts                           |
-| Icons     | Lucide React                       |
-| Deploy    | Vercel + GitHub Actions            |
+| Layer     | Tech                         |
+| --------- | ---------------------------- |
+| Framework | Next.js 15.5.12 (App Router) |
+| Styling   | Tailwind CSS 4               |
+| Auth      | NextAuth v5                  |
+| Database  | Supabase (PostgreSQL)        |
+| Banking   | Plaid API                    |
+| Email     | Resend                       |
+| Charts    | Recharts                     |
+| Icons     | Lucide React                 |
+| Deploy    | Vercel + GitHub Actions      |
 
 ## 🚀 Getting Started
 
@@ -82,7 +83,6 @@ See `.env.example` for the full list. Key variables:
 | Variable            | Description                                     |
 | ------------------- | ----------------------------------------------- |
 | `NEXTAUTH_SECRET`   | Auth encryption key (`openssl rand -base64 32`) |
-| `ALLOWED_EMAIL`     | Whitelisted email(s) for login                  |
 | `SUPABASE_URL`      | Supabase project URL                            |
 | `SUPABASE_ANON_KEY` | Supabase anonymous key                          |
 | `PLAID_CLIENT_ID`   | Plaid client ID                                 |
@@ -94,22 +94,53 @@ See `.env.example` for the full list. Key variables:
 ```
 src/
 ├── app/
-│   ├── (auth)/login/        # Login page
-│   ├── (dashboard)/         # Protected dashboard
+│   ├── (auth)/                  # Auth pages (login, register)
+│   │   ├── login/
+│   │   └── register/
+│   ├── (pages)/                 # Protected pages
 │   │   ├── budget/
 │   │   │   ├── transactions/
 │   │   │   ├── subscriptions/
 │   │   │   └── graph/
-│   │   └── freelance/
-│   │       ├── portfolio/
-│   │       ├── income/
-│   │       └── projects/
-│   └── api/auth/            # NextAuth API routes
+│   │   ├── freelance/
+│   │   │   ├── portfolio/
+│   │   │   ├── income/
+│   │   │   └── projects/
+│   │   └── page.tsx             # Dashboard
+│   └── api/
+│       └── auth/                 # Auth API routes
+│           ├── [...nextauth]/    # NextAuth endpoints
+│           ├── register/         # User registration
+│           ├── availability/     # Check pseudo/email availability
+│           └── password/
+│               ├── forgot/       # Request password reset
+│               └── reset/        # Reset password
+├── auth/                        # NextAuth configuration
+│   ├── config.ts               # Auth config (callbacks, session)
+│   ├── index.ts                # Providers & authorize logic
+│   └── middleware.ts           # Route protection
 ├── components/
-│   ├── ui/                  # Card, Button, Badge, Input
-│   └── layout/              # Sidebar, Header
-├── lib/                     # Supabase, Plaid, Resend clients
-└── types/                   # TypeScript types
+│   ├── auth/                   # Auth components (LoginForm, RegisterForm, etc.)
+│   ├── global/                 # Global components (Sidebar, Header)
+│   └── shared/ui/              # UI components (Button, Input, Card, etc.)
+├── features/                   # Feature-based code (future organization)
+│   ├── auth/
+│   │   ├── components/
+│   │   └── schemas/
+│   ├── budget/
+│   └── freelance/
+├── lib/
+│   ├── server/                 # Server-side code
+│   │   ├── supabase-admin.ts  # Supabase admin client
+│   │   ├── email.ts           # Resend email sending
+│   │   └── plaid.ts           # Plaid API integration
+│   ├── client/                 # Client-side code
+│   │   └── supabase.ts        # Supabase client
+│   ├── middleware/
+│   │   └── rate-limit.ts      # Rate limiting
+│   └── utils.ts               # Utility functions
+├── hooks/                      # Custom React hooks
+└── types/                      # TypeScript type definitions
 ```
 
 ---
@@ -118,7 +149,7 @@ src/
 
 ### Phase 1 — Data Integration _(next)_
 
-- [ ] Supabase tables setup (transactions, subscriptions, projects, portfolio)
+- [x] Supabase tables setup (transactions, subscriptions, projects, portfolio)
 - [ ] Plaid Link integration — connect real bank accounts
 - [ ] Store Plaid access tokens securely in Supabase
 - [ ] Fetch and display real transactions from Plaid
@@ -154,7 +185,7 @@ src/
 - [ ] Dark/light theme toggle
 - [ ] Onboarding flow for first-time users
 - [ ] Settings page (profile, notification preferences)
-- [ ] Rate limiting and security hardening
+- [x] Rate limiting and security hardening
 
 ## 🚢 Deployment
 
