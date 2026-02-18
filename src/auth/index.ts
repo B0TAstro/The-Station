@@ -57,10 +57,12 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                     if (passwordsMatch) {
                         return {
                             id: user.id,
-                            name: user.pseudo || user.nom,
+                            name: user.pseudo || user.nom || user.prenom,
                             email: user.email,
                             image: user.avatar_url || null,
                             avatar_url: user.avatar_url || null,
+                            prenom: user.prenom || null,
+                            nom: user.nom || null,
                         };
                     }
 
@@ -75,6 +77,8 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (user) {
                 token.id = user.id;
                 token.pseudo = user.name;
+                token.prenom = (user as { prenom?: string }).prenom || null;
+                token.nom = (user as { nom?: string }).nom || null;
                 token.avatar_url = (user as { avatar_url?: string | null }).avatar_url || null;
             }
             return token;
@@ -83,6 +87,8 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (token) {
                 session.user.id = token.id as string;
                 session.user.pseudo = token.pseudo as string;
+                session.user.prenom = token.prenom as string | undefined;
+                session.user.nom = token.nom as string | undefined;
                 session.user.avatar_url = token.avatar_url as string | undefined;
             }
             return session;

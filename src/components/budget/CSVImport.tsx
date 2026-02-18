@@ -16,7 +16,6 @@ export interface ParsedTransaction {
 }
 
 export function CSVImport({ onImport }: CSVImportProps) {
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,7 +46,6 @@ export function CSVImport({ onImport }: CSVImportProps) {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        setLoading(true);
         setError(null);
 
         try {
@@ -62,7 +60,6 @@ export function CSVImport({ onImport }: CSVImportProps) {
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur lors de l'import");
         } finally {
-            setLoading(false);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }

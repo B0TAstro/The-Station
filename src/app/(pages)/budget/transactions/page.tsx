@@ -5,7 +5,7 @@ import { Header } from '@/components/global';
 import { Button, Input } from '@/components/ui';
 import { RefreshCcw } from 'lucide-react';
 import { TransactionList } from '@/components/budget/TransactionList';
-import { CSVImport, type ParsedTransaction } from '@/components/budget/CSVImport';
+import { CSVImport } from '@/components/budget/CSVImport';
 
 const categories = ['Tous', 'Abonnement', 'Courses', 'Revenu', 'Restaurant', 'Transport', 'Logement'];
 

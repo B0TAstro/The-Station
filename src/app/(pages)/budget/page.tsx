@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/global';
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
 import Link from 'next/link';
-import { TrueLayerLink } from '@/components/budget/TrueLayerLink';
 
 interface BudgetData {
     income: number;
@@ -40,20 +39,9 @@ export default function BudgetPage() {
         checkConnection();
     }, []);
 
-    const handleLinkSuccess = () => {
-        setData((prev) => ({ ...prev, connected: true }));
-    };
-
     return (
         <div>
-            <Header title="Budget" description="Gère ton budget personnel" variant="budget">
-                {!loading && !data.connected && <TrueLayerLink onLinkSuccess={handleLinkSuccess} />}
-                {data.connected && (
-                    <Button variant="budget" onClick={handleLinkSuccess}>
-                        Banque connectée
-                    </Button>
-                )}
-            </Header>
+            <Header title="Budget" description="Gère ton budget personnel" variant="budget" />
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
                 <Card>
