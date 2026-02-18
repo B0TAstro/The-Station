@@ -1,13 +1,58 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/global';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@/components/ui';
 import { TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { TrueLayerLink } from '@/components/budget/TrueLayerLink';
+
+interface BudgetData {
+    income: number;
+    expenses: number;
+    balance: number;
+    subscriptions: number;
+    connected: boolean;
+}
 
 export default function BudgetPage() {
+    const [data, setData] = useState<BudgetData>({
+        income: 0,
+        expenses: 0,
+        balance: 0,
+        subscriptions: 0,
+        connected: false,
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function checkConnection() {
+            try {
+                const res = await fetch('/api/true-layer/connected');
+                const result = await res.json();
+                setData((prev) => ({ ...prev, connected: result.connected }));
+            } catch (error) {
+                console.error('Error checking connection:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        checkConnection();
+    }, []);
+
+    const handleLinkSuccess = () => {
+        setData((prev) => ({ ...prev, connected: true }));
+    };
+
     return (
         <div>
             <Header title="Budget" description="Gère ton budget personnel" variant="budget">
-                <Button variant="budget">Connecter ma banque</Button>
+                {!loading && !data.connected && <TrueLayerLink onLinkSuccess={handleLinkSuccess} />}
+                {data.connected && (
+                    <Button variant="budget" onClick={handleLinkSuccess}>
+                        Banque connectée
+                    </Button>
+                )}
             </Header>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -19,7 +64,7 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold text-green-600">—</p>
+                        <p className="text-3xl font-semibold text-green-600">{data.connected ? '—' : '—'}</p>
                         <p className="text-sm text-muted-foreground mt-1">Ce mois</p>
                     </CardContent>
                 </Card>
@@ -32,7 +77,7 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold text-red-600">—</p>
+                        <p className="text-3xl font-semibold text-red-600">{data.connected ? '—' : '—'}</p>
                         <p className="text-sm text-muted-foreground mt-1">Ce mois</p>
                     </CardContent>
                 </Card>
@@ -45,7 +90,7 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold">—</p>
+                        <p className="text-3xl font-semibold">{data.connected ? '—' : '—'}</p>
                         <p className="text-sm text-muted-foreground mt-1">Disponible</p>
                     </CardContent>
                 </Card>
@@ -58,7 +103,7 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold">—</p>
+                        <p className="text-3xl font-semibold">{data.subscriptions || '—'}</p>
                         <p className="text-sm text-muted-foreground mt-1">/ mois</p>
                     </CardContent>
                 </Card>
