@@ -22,7 +22,6 @@ export default function BudgetPage() {
         subscriptions: 0,
         connected: false,
     });
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function checkConnection() {
@@ -32,8 +31,6 @@ export default function BudgetPage() {
                 setData((prev) => ({ ...prev, connected: result.connected }));
             } catch (error) {
                 console.error('Error checking connection:', error);
-            } finally {
-                setLoading(false);
             }
         }
         checkConnection();

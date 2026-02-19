@@ -5,61 +5,41 @@ import { Button } from '@/components/ui';
 import { Upload } from 'lucide-react';
 
 interface CSVImportProps {
-    onImport?: (transactions: ParsedTransaction[]) => void;
-}
-
-export interface ParsedTransaction {
-    date: string;
-    description: string;
-    amount: number;
-    category?: string;
+    onImport?: () => void;
 }
 
 export function CSVImport({ onImport }: CSVImportProps) {
     const [error, setError] = useState<string | null>(null);
+    const [importing, setImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const parseCSV = (content: string): ParsedTransaction[] => {
-        const lines = content.trim().split('\n');
-        const transactions: ParsedTransaction[] = [];
-
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
-            const parts = line.split(',').map((p) => p.trim().replace(/^"|"$/g, ''));
-
-            if (parts.length >= 3) {
-                transactions.push({
-                    date: parts[0],
-                    description: parts[1],
-                    amount: parseFloat(parts[2].replace(/[^0-9.-]/g, '')),
-                    category: parts[3] || undefined,
-                });
-            }
-        }
-
-        return transactions;
-    };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
         setError(null);
+        setImporting(true);
 
         try {
-            const content = await file.text();
-            const transactions = parseCSV(content);
+            const formData = new FormData();
+            formData.append('file', file);
 
-            if (transactions.length === 0) {
-                throw new Error('Aucune transaction trouvée dans le fichier');
+            const res = await fetch('/api/import/csv', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Erreur lors de l'import");
             }
 
-            onImport?.(transactions);
+            onImport?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur lors de l'import");
         } finally {
+            setImporting(false);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -68,22 +48,18 @@ export function CSVImport({ onImport }: CSVImportProps) {
 
     return (
         <div className="flex flex-col gap-2">
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleFileChange}
-                className="hidden"
-                id="csv-import"
-            />
-
-            <label htmlFor="csv-import">
-                <Button variant="secondary" size="sm" className="cursor-pointer">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Importer CSV
-                </Button>
-            </label>
-
+            <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
+            <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                className="cursor-pointer"
+            >
+                <Upload className="h-4 w-4 mr-2" />
+                {importing ? 'Import...' : 'Importer CSV'}
+            </Button>
             {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
     );

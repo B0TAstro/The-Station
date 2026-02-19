@@ -21,7 +21,6 @@ import {
     Menu,
     X,
     User as UserIcon,
-    Settings,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -149,13 +148,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                                         className={cn(
                                                             'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150',
                                                             isActive &&
-                                                            isBudget &&
-                                                            'bg-budget/10 text-budget-light font-medium',
+                                                                isBudget &&
+                                                                'bg-budget/10 text-budget-light font-medium',
                                                             isActive &&
-                                                            isFreelance &&
-                                                            'bg-freelance/10 text-freelance-light font-medium',
+                                                                isFreelance &&
+                                                                'bg-freelance/10 text-freelance-light font-medium',
                                                             !isActive &&
-                                                            'text-muted-foreground hover:text-foreground hover:bg-muted',
+                                                                'text-muted-foreground hover:text-foreground hover:bg-muted',
                                                         )}
                                                     >
                                                         <Icon className="h-4 w-4" />
@@ -245,7 +244,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                     )}
                                 </div>
                             </button>
-
                         </>
                     )}
 
@@ -286,13 +284,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                                                 'flex items-center rounded-lg text-sm transition-colors duration-150',
                                                                 expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
                                                                 isActive &&
-                                                                isBudget &&
-                                                                'bg-budget/10 text-budget-light font-medium',
+                                                                    isBudget &&
+                                                                    'bg-budget/10 text-budget-light font-medium',
                                                                 isActive &&
-                                                                isFreelance &&
-                                                                'bg-freelance/10 text-freelance-light font-medium',
+                                                                    isFreelance &&
+                                                                    'bg-freelance/10 text-freelance-light font-medium',
                                                                 !isActive &&
-                                                                'text-muted-foreground hover:text-foreground hover:bg-muted',
+                                                                    'text-muted-foreground hover:text-foreground hover:bg-muted',
                                                             )}
                                                         >
                                                             <Icon className="h-4 w-4 shrink-0" />
