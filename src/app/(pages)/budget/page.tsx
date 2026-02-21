@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Header } from '@/components/global';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui';
 import { TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
@@ -26,7 +26,7 @@ export default function BudgetPage() {
     useEffect(() => {
         async function checkConnection() {
             try {
-                const res = await fetch('/api/true-layer/connected');
+                const res = await fetch('/api/transactions/true-layer/connected');
                 const result = await res.json();
                 setData((prev) => ({ ...prev, connected: result.connected }));
             } catch (error) {

@@ -12,8 +12,8 @@ export async function GET() {
 
         const supabase = createAdminClient();
 
-        const { data: plaidItems, error } = await supabase
-            .from('plaid_items')
+        const { data: truelayerTokens, error } = await supabase
+            .from('truelayer_tokens')
             .select('id')
             .eq('user_id', session.user.id)
             .limit(1);
@@ -23,7 +23,7 @@ export async function GET() {
             return NextResponse.json({ error: 'Failed to check connection status' }, { status: 500 });
         }
 
-        const connected = plaidItems && plaidItems.length > 0;
+        const connected = truelayerTokens && truelayerTokens.length > 0;
 
         return NextResponse.json({ connected });
     } catch (err) {

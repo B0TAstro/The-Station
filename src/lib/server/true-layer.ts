@@ -5,7 +5,7 @@ const AUTH_URL =
     process.env.TRUELAYER_ENV === 'production' ? 'https://auth.truelayer.com' : 'https://auth.truelayer-sandbox.com';
 
 const APP_URL = process.env.AUTH_URL || 'http://localhost:3000';
-const REDIRECT_URI = `${APP_URL}/api/true-layer/callback`;
+const REDIRECT_URI = `${APP_URL}/api/transactions/true-layer/callback`;
 
 function generateState(): string {
     return Math.random().toString(36).substring(2, 15);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input, Label } from '@/components/ui';
+import { Button, Input, Label } from '@/components/shared/ui';
 import { Lock } from 'lucide-react';
 
 interface PasswordSectionProps {

@@ -47,7 +47,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                         throw new EmailNotFoundError();
                     }
 
-                    if (!user.authorized) {
+                    if (!user.authorized_access) {
                         throw new UnauthorizedAccountError();
                     }
 

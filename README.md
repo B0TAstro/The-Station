@@ -145,6 +145,56 @@ src/
 
 ---
 
+## 🗄 Database Schema
+
+### users
+
+| Column             | Type        | Constraints                    |
+| ------------------ | ----------- | ------------------------------ |
+| id                 | uuid        | PK, default uuid_generate_v4() |
+| email              | text        | NOT NULL, UNIQUE               |
+| password           | text        | NOT NULL                       |
+| pseudo             | text        |                                |
+| nom                | text        |                                |
+| prenom             | text        |                                |
+| avatar_url         | text        |                                |
+| authorized_access  | boolean     | DEFAULT false                  |
+| reset_token        | text        |                                |
+| reset_token_expiry | timestamptz |                                |
+| created_at         | timestamptz | DEFAULT NOW()                  |
+
+### truelayer_tokens
+
+| Column        | Type        | Constraints                       |
+| ------------- | ----------- | --------------------------------- |
+| id            | uuid        | PK, default uuid_generate_v4()    |
+| user_id       | uuid        | FK → users(id), ON DELETE CASCADE |
+| access_token  | text        | NOT NULL                          |
+| refresh_token | text        | NOT NULL                          |
+| expires_at    | timestamptz | NOT NULL                          |
+| provider_id   | text        |                                   |
+| provider_name | text        |                                   |
+| created_at    | timestamptz | DEFAULT NOW()                     |
+| updated_at    | timestamptz | DEFAULT NOW()                     |
+
+### transactions
+
+| Column                   | Type        | Constraints                       |
+| ------------------------ | ----------- | --------------------------------- |
+| id                       | uuid        | PK, default uuid_generate_v4()    |
+| user_id                  | uuid        | FK → users(id), ON DELETE CASCADE |
+| truelayer_transaction_id | text        | UNIQUE                            |
+| truelayer_token_id       | uuid        | FK → truelayer_tokens(id)         |
+| amount                   | numeric     | NOT NULL                          |
+| date                     | date        | NOT NULL                          |
+| description              | text        | NOT NULL                          |
+| category                 | text        |                                   |
+| merchant_name            | text        |                                   |
+| is_pending               | boolean     | DEFAULT false                     |
+| created_at               | timestamptz | DEFAULT NOW()                     |
+
+---
+
 ## 🗺 Roadmap
 
 ### Phase 1 — Data Integration _(next)_

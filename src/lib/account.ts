@@ -12,7 +12,7 @@ export interface UserProfile {
 
 export interface Bank {
     id: string;
-    institution_name: string;
+    provider_name: string;
     status: string;
     created_at: string;
 }
@@ -59,7 +59,7 @@ export async function getBanks(): Promise<Bank[]> {
     if (!session?.user?.id) return [];
 
     const supabase = createAdminClient();
-    const { data, error } = await supabase.from('plaid_items').select('*').eq('user_id', session.user.id);
+    const { data, error } = await supabase.from('truelayer_tokens').select('*').eq('user_id', session.user.id);
 
     if (error) {
         console.error('Error fetching banks:', error);
@@ -76,7 +76,7 @@ export async function deleteBank(id: string): Promise<{ success: boolean; error?
     }
 
     const supabase = createAdminClient();
-    const { error } = await supabase.from('plaid_items').delete().eq('id', id).eq('user_id', session.user.id);
+    const { error } = await supabase.from('truelayer_tokens').delete().eq('id', id).eq('user_id', session.user.id);
 
     if (error) {
         console.error('Error deleting bank:', error);
@@ -93,9 +93,10 @@ export async function updatePassword(newPassword: string): Promise<{ success: bo
     }
 
     const supabase = createAdminClient();
-    const { error } = await supabase.auth.admin.updateUserById(session.user.id, {
-        password: newPassword,
-    });
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const { error } = await supabase.from('users').update({ password: hashedPassword }).eq('id', session.user.id);
 
     if (error) {
         console.error('Error updating password:', error);

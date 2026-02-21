@@ -1,28 +1,25 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Card, CardContent, Badge } from '@/components/ui';
+import { Card, CardContent, Badge } from '@/components/shared/ui';
 import { RefreshCcw } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface Transaction {
     id: string;
-    plaid_transaction_id: string;
-    account_id: string;
+    source_id: string;
+    source_type: string;
+    truelayer_account_id: string | null;
+    truelayer_token_id: string | null;
     amount: number;
     date: string;
-    name: string;
+    description: string;
     merchant_name: string | null;
     category: string[] | null;
-    plaid_item_id: string;
     user_id: string;
 }
 
-interface TransactionListProps {
-    forceRefresh?: boolean;
-}
-
-export function TransactionList({ forceRefresh = false }: TransactionListProps) {
+export function TransactionList() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -32,9 +29,7 @@ export function TransactionList({ forceRefresh = false }: TransactionListProps) 
         setError(null);
 
         try {
-            const url = forceRefresh ? '/api/true-layer/transactions?force=true' : '/api/true-layer/transactions';
-
-            const response = await fetch(url);
+            const response = await fetch('/api/transactions');
             const data = await response.json();
 
             if (!response.ok) {
@@ -47,11 +42,11 @@ export function TransactionList({ forceRefresh = false }: TransactionListProps) 
         } finally {
             setLoading(false);
         }
-    }, [forceRefresh]);
+    }, []);
 
     useEffect(() => {
         fetchTransactions();
-    }, [fetchTransactions, forceRefresh]);
+    }, [fetchTransactions]);
 
     if (loading) {
         return (
@@ -93,7 +88,7 @@ export function TransactionList({ forceRefresh = false }: TransactionListProps) 
                 <div className="divide-y divide-border">
                     {transactions.map((transaction) => (
                         <div
-                            key={transaction.plaid_transaction_id}
+                            key={transaction.source_id}
                             className="flex items-center justify-between p-4 hover:bg-card-hover transition-colors"
                         >
                             <div className="flex items-center gap-4">
@@ -107,7 +102,9 @@ export function TransactionList({ forceRefresh = false }: TransactionListProps) 
                                     <span className="text-lg">{transaction.amount > 0 ? '↑' : '↓'}</span>
                                 </div>
                                 <div>
-                                    <p className="font-medium">{transaction.merchant_name || transaction.name}</p>
+                                    <p className="font-medium">
+                                        {transaction.merchant_name || transaction.description}
+                                    </p>
                                     <p className="text-sm text-muted-foreground">{formatDate(transaction.date)}</p>
                                 </div>
                             </div>

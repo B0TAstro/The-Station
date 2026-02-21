@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
                 email,
                 password: hashedPassword,
                 avatar_url: avatar_url || null,
-                authorized: false,
+                authorized_access: false,
             },
         ]);
 

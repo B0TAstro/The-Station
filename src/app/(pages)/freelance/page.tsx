@@ -1,5 +1,5 @@
-import { Header } from '@/components/global';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/shared/ui';
 import { Briefcase, DollarSign, FolderGit2 } from 'lucide-react';
 import Link from 'next/link';
 

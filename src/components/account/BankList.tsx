@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui';
+import { Button } from '@/components/shared/ui';
 import { Building, Trash2, Plus } from 'lucide-react';
 import type { Bank } from '@/lib/account';
 
@@ -21,7 +21,7 @@ export function BankList({ banks, onConnect, onDelete }: BankListProps) {
                         <div className="flex items-center gap-3">
                             <Building className="h-4 w-4 text-budget" />
                             <div>
-                                <p className="text-sm font-medium">{bank.institution_name || 'Banque'}</p>
+                                <p className="text-sm font-medium">{bank.provider_name || 'Banque'}</p>
                                 <p className="text-xs text-muted-foreground">
                                     {new Date(bank.created_at).toLocaleDateString('fr-FR')}
                                 </p>

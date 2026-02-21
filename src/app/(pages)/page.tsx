@@ -1,5 +1,5 @@
-import { Header } from '@/components/global';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui';
 import { Wallet, Briefcase, TrendingUp, Clock } from 'lucide-react';
 import Link from 'next/link';
 

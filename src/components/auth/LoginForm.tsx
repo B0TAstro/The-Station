@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
-import { Input } from '@/components/ui';
+import { Input } from '@/components/shared/ui';
 import gsap from 'gsap';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { Loader2 } from 'lucide-react';

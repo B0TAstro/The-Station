@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
 
         const supabase = createAdminClient();
 
-        const { data: plaidItems, error: itemsError } = await supabase
-            .from('plaid_items')
+        const { data: truelayerTokens, error: itemsError } = await supabase
+            .from('truelayer_tokens')
             .select('*')
             .eq('user_id', session.user.id);
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to fetch true layer items' }, { status: 500 });
         }
 
-        if (!plaidItems || plaidItems.length === 0) {
+        if (!truelayerTokens || truelayerTokens.length === 0) {
             return NextResponse.json({ transactions: [] });
         }
 
@@ -42,15 +42,18 @@ export async function GET(request: NextRequest) {
         const shouldFetch = force || !lastSyncCookie || lastSyncCookie.value !== today;
 
         if (shouldFetch) {
-            for (const item of plaidItems) {
+            for (const token of truelayerTokens) {
                 try {
-                    let accessToken = item.access_token;
+                    let accessToken = token.access_token;
 
-                    if (item.refresh_token) {
+                    if (token.refresh_token) {
                         try {
-                            accessToken = await refreshAccessToken(item.refresh_token);
+                            accessToken = await refreshAccessToken(token.refresh_token);
 
-                            await supabase.from('plaid_items').update({ access_token: accessToken }).eq('id', item.id);
+                            await supabase
+                                .from('truelayer_tokens')
+                                .update({ access_token: accessToken })
+                                .eq('id', token.id);
                         } catch (refreshError) {
                             console.error('Error refreshing token:', refreshError);
                         }
@@ -73,12 +76,13 @@ export async function GET(request: NextRequest) {
                                     category?: string[] | null;
                                 }) => ({
                                     user_id: session.user.id,
-                                    plaid_transaction_id: txn.transaction_id,
-                                    plaid_item_id: item.id,
-                                    account_id: txn.account_id,
+                                    source_type: 'truelayer',
+                                    source_id: txn.transaction_id,
+                                    truelayer_token_id: token.id,
+                                    truelayer_account_id: txn.account_id,
                                     amount: txn.amount,
                                     date: txn.timestamp.split('T')[0],
-                                    name: txn.description,
+                                    description: txn.description,
                                     merchant_name: txn.merchant_name || null,
                                     category: txn.category || null,
                                 }),
@@ -87,7 +91,7 @@ export async function GET(request: NextRequest) {
                             const { error: upsertError } = await supabase
                                 .from('transactions')
                                 .upsert(transactionsToInsert, {
-                                    onConflict: 'plaid_transaction_id',
+                                    onConflict: 'source_id',
                                     ignoreDuplicates: true,
                                 });
 
@@ -97,7 +101,7 @@ export async function GET(request: NextRequest) {
                         }
                     }
                 } catch (fetchError) {
-                    console.error('Error fetching transactions for item:', item.id, fetchError);
+                    console.error('Error fetching transactions for token:', token.id, fetchError);
                 }
             }
 

@@ -4,22 +4,15 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { User, Lock, Building } from 'lucide-react';
 import { Avatar, ProfileForm, BankList, PasswordSection, AccountModal } from '@/components/account';
-import { useAccount } from '@/hooks/useAccount';
+import { useBanks } from '@/hooks/useAccount';
 
 export default function AccountPage() {
     const { data: session, update } = useSession();
-    const {
-        profile,
-        banks,
-        loading,
-        saving,
-        message,
-        setMessage,
-        saveProfile,
-        saveAvatar,
-        removeBank,
-        changePassword,
-    } = useAccount();
+    const { banks, removeBank } = useBanks();
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const [formData, setFormData] = useState({ prenom: '', nom: '', pseudo: '' });
     const [initialData, setInitialData] = useState({ prenom: '', nom: '', pseudo: '' });
@@ -30,34 +23,111 @@ export default function AccountPage() {
         formData.pseudo !== initialData.pseudo;
 
     useEffect(() => {
-        if (profile) {
+        if (session?.user) {
             const data = {
-                prenom: profile.prenom || '',
-                nom: profile.nom || '',
-                pseudo: profile.pseudo || '',
+                prenom: session.user.prenom || '',
+                nom: session.user.nom || '',
+                pseudo: session.user.pseudo || '',
             };
             setInitialData(data);
             setFormData(data);
         }
-    }, [profile]);
+        setLoading(false);
+    }, [session]);
+
+    const saveProfile = async (data: { prenom?: string; nom?: string; pseudo?: string }) => {
+        setSaving(true);
+        setMessage(null);
+
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                setMessage({ type: 'success', text: 'Profil mis à jour !' });
+                await update();
+            } else {
+                setMessage({ type: 'error', text: result.error || 'Erreur lors de la mise à jour' });
+            }
+        } catch {
+            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
+        }
+
+        setSaving(false);
+    };
+
+    const saveAvatar = async (base64: string) => {
+        setSaving(true);
+        setMessage(null);
+
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatar_url: base64 }),
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                setMessage({ type: 'success', text: 'Avatar mis à jour !' });
+                await update();
+                return true;
+            } else {
+                setMessage({ type: 'error', text: result.error || 'Erreur lors de la mise à jour' });
+            }
+        } catch {
+            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
+        }
+
+        setSaving(false);
+        return false;
+    };
+
+    const changePassword = async (newPassword: string): Promise<boolean> => {
+        setSaving(true);
+        setMessage(null);
+
+        try {
+            const res = await fetch('/api/user/password', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: newPassword }),
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                setMessage({ type: 'success', text: 'Mot de passe mis à jour !' });
+                setSaving(false);
+                return true;
+            } else {
+                setMessage({ type: 'error', text: result.error || 'Erreur lors de la mise à jour' });
+            }
+        } catch {
+            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
+        }
+
+        setSaving(false);
+        return false;
+    };
 
     const handleAvatarChange = async (file: File) => {
         const reader = new FileReader();
         reader.onloadend = async () => {
             const base64 = reader.result as string;
-            const success = await saveAvatar(base64);
-            if (success) {
-                await update();
-            }
+            await saveAvatar(base64);
         };
         reader.readAsDataURL(file);
     };
 
     const handleProfileSave = async () => {
-        const success = await saveProfile(formData);
-        if (success) {
-            await update();
-        }
+        await saveProfile(formData);
     };
 
     const handleProfileCancel = () => {
@@ -67,13 +137,13 @@ export default function AccountPage() {
 
     const handleConnectBank = async () => {
         try {
-            const res = await fetch('/api/true-layer/create-link-token', { method: 'POST' });
+            const res = await fetch('/api/transactions/true-layer/create-link-token', { method: 'POST' });
             const data = await res.json();
             if (data.authUrl) {
                 window.open(data.authUrl, '_blank');
             }
-        } catch (err) {
-            console.error('Error:', err);
+        } catch (_err) {
+            console.error('Error:', _err);
         }
     };
 
@@ -116,7 +186,7 @@ export default function AccountPage() {
                                 {formData.pseudo || initialData.pseudo || 'Pseudo'}
                             </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">{profile?.email}</p>
+                        <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
                     </div>
 
                     <ProfileForm

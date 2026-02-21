@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Button } from '@/components/ui';
+import { Button } from '@/components/shared/ui';
 import { Upload } from 'lucide-react';
 
 interface CSVImportProps {
@@ -24,7 +24,7 @@ export function CSVImport({ onImport }: CSVImportProps) {
             const formData = new FormData();
             formData.append('file', file);
 
-            const res = await fetch('/api/import/csv', {
+            const res = await fetch('/api/transactions/csv', {
                 method: 'POST',
                 body: formData,
             });

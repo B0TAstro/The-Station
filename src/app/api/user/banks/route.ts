@@ -13,8 +13,8 @@ export async function GET() {
         const supabase = createAdminClient();
 
         const { data: banks, error } = await supabase
-            .from('plaid_items')
-            .select('id, institution_name, status, created_at')
+            .from('truelayer_tokens')
+            .select('id, provider_name, status, created_at')
             .eq('user_id', session.user.id)
             .order('created_at', { ascending: false });
 
@@ -46,7 +46,7 @@ export async function DELETE(request: Request) {
 
         const supabase = createAdminClient();
 
-        const { error } = await supabase.from('plaid_items').delete().eq('id', id).eq('user_id', session.user.id);
+        const { error } = await supabase.from('truelayer_tokens').delete().eq('id', id).eq('user_id', session.user.id);
 
         if (error) {
             console.error('Error deleting bank:', error);

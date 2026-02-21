@@ -23,13 +23,13 @@ export async function GET(request: NextRequest) {
 
         const supabase = createAdminClient();
 
-        const { error: insertError } = await supabase.from('plaid_items').insert([
+        const { error: insertError } = await supabase.from('truelayer_tokens').insert([
             {
                 user_id: session.user.id,
                 access_token: accessToken,
                 refresh_token: refreshToken,
-                item_id: userId,
-                institution_name: 'Bank',
+                provider_id: userId,
+                provider_name: 'Bank',
                 status: 'active',
             },
         ]);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Button } from '@/components/ui';
+import { Input, Label, Button } from '@/components/shared/ui';
 import { Check, X } from 'lucide-react';
 
 interface ProfileFormProps {

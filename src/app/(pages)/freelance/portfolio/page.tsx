@@ -1,7 +1,7 @@
 'use client';
 
-import { Header } from '@/components/global';
-import { Card, CardContent, CardHeader, Button, Badge } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Card, CardContent, CardHeader, Button, Badge } from '@/components/shared/ui';
 import { Github, ExternalLink, Plus, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { SiteType, PortfolioSite } from '@/types';

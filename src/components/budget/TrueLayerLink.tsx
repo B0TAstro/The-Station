@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui';
+import { Button } from '@/components/shared/ui';
 
 interface TrueLayerLinkProps {
     onLinkSuccess?: () => void;
@@ -15,7 +15,7 @@ export function TrueLayerLink({ onLinkSuccess: _onLinkSuccess }: TrueLayerLinkPr
     useEffect(() => {
         async function fetchAuthUrl() {
             try {
-                const response = await fetch('/api/true-layer/create-link-token', {
+                const response = await fetch('/api/transactions/true-layer/create-link-token', {
                     method: 'POST',
                 });
                 const data = await response.json();

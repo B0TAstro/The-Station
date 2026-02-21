@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Header } from '@/components/global';
-import { Button, Input } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Button, Input } from '@/components/shared/ui';
 import { RefreshCcw } from 'lucide-react';
 import { TransactionList } from '@/components/budget/TransactionList';
 import { CSVImport } from '@/components/budget/CSVImport';
@@ -12,10 +12,10 @@ const categories = ['Tous', 'Abonnement', 'Courses', 'Revenu', 'Restaurant', 'Tr
 export default function TransactionsPage() {
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('Tous');
-    const [forceRefresh, setForceRefresh] = useState(0);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const handleSync = () => {
-        setForceRefresh((prev) => prev + 1);
+        setRefreshKey((prev) => prev + 1);
     };
 
     return (
@@ -56,7 +56,7 @@ export default function TransactionsPage() {
                 ))}
             </div>
 
-            <TransactionList forceRefresh={forceRefresh > 0} />
+            <TransactionList key={refreshKey} />
         </div>
     );
 }
