@@ -90,30 +90,28 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 )}
             >
                 {session?.user && (
-                    <>
-                        <button
-                            onClick={() => router.push('/account')}
-                            className="w-full border-b border-border p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
-                        >
-                            {session?.user.avatar_url ? (
-                                <Image
-                                    src={session.user.avatar_url}
-                                    alt={session.user.name || 'User'}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
-                                />
-                            ) : (
-                                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                                    <UserIcon className="h-4 w-4" />
-                                </div>
-                            )}
-                            <div className="overflow-hidden flex-1 text-left">
-                                <p className="text-sm font-medium truncate">{session.user.name}</p>
-                                <p className="text-xs text-muted-foreground truncate">Voir le profil</p>
+                    <button
+                        onClick={() => router.push('/account')}
+                        className="w-full border-b border-border p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+                    >
+                        {session?.user.avatar_url ? (
+                            <Image
+                                src={session.user.avatar_url}
+                                alt={session.user.name || 'User'}
+                                width={32}
+                                height={32}
+                                className="rounded-full"
+                            />
+                        ) : (
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                                <UserIcon className="h-4 w-4" />
                             </div>
-                        </button>
-                    </>
+                        )}
+                        <div className="overflow-hidden flex-1 text-left">
+                            <p className="text-sm font-medium truncate">{session.user.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">Voir le profil</p>
+                        </div>
+                    </button>
                 )}
 
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-4">
@@ -209,44 +207,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         </Link>
                     </div>
 
-                    {session?.user && (
-                        <>
-                            <button
-                                onClick={() => router.push('/account')}
-                                className={cn(
-                                    'w-full border-b border-border transition-all duration-200 hover:bg-muted/50',
-                                    expanded ? 'p-3' : 'p-2',
-                                )}
-                            >
-                                <div
-                                    className={cn(
-                                        'flex items-center rounded-lg bg-muted/50',
-                                        expanded ? 'gap-3 p-2' : 'justify-center p-2',
-                                    )}
-                                >
-                                    {session.user.avatar_url ? (
-                                        <Image
-                                            src={session.user.avatar_url}
-                                            alt={session.user.name || 'User'}
-                                            width={24}
-                                            height={24}
-                                            className="rounded-full shrink-0"
-                                        />
-                                    ) : (
-                                        <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                                            <UserIcon className="h-3 w-3" />
-                                        </div>
-                                    )}
-                                    {expanded && (
-                                        <div className="overflow-hidden flex-1">
-                                            <p className="text-xs font-medium truncate">{session.user.name}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </button>
-                        </>
-                    )}
-
                     <nav className={cn('flex-1 space-y-1 overflow-y-auto pt-2', expanded ? 'px-3' : 'px-2')}>
                         {navigation.map((item) => {
                             if ('items' in item) {
@@ -306,26 +266,62 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         })}
                     </nav>
 
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        title={expanded ? 'Réduire' : 'Agrandir'}
+                        className={cn(
+                            'flex w-full items-center rounded-lg text-sm mb-1',
+                            'text-muted-foreground transition-colors duration-150',
+                            'hover:text-foreground hover:bg-muted',
+                            expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
+                        )}
+                    >
+                        {expanded ? (
+                            <>
+                                <PanelLeftClose className="h-4 w-4 shrink-0" />
+                                Réduire
+                            </>
+                        ) : (
+                            <PanelLeftOpen className="h-4 w-4" />
+                        )}
+                    </button>
+
                     <div className={cn('border-t border-border mt-auto', expanded ? 'p-3' : 'p-2')}>
-                        <button
-                            onClick={() => setExpanded(!expanded)}
-                            title={expanded ? 'Réduire' : 'Agrandir'}
-                            className={cn(
-                                'flex w-full items-center rounded-lg text-sm mb-1',
-                                'text-muted-foreground transition-colors duration-150',
-                                'hover:text-foreground hover:bg-muted',
-                                expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
-                            )}
-                        >
-                            {expanded ? (
-                                <>
-                                    <PanelLeftClose className="h-4 w-4 shrink-0" />
-                                    Réduire
-                                </>
-                            ) : (
-                                <PanelLeftOpen className="h-4 w-4" />
-                            )}
-                        </button>
+                        {session?.user && (
+                            <button
+                                onClick={() => router.push('/account')}
+                                className={cn(
+                                    'w-full rounded-lg transition-all duration-200 hover:bg-muted/50 mb-2',
+                                    expanded ? 'p-3' : 'p-2',
+                                    expanded ? 'flex items-center gap-3' : 'flex justify-center',
+                                )}
+                            >
+                                {session.user.avatar_url ? (
+                                    <Image
+                                        src={session.user.avatar_url}
+                                        alt={session.user.name || 'User'}
+                                        width={expanded ? 32 : 28}
+                                        height={expanded ? 32 : 28}
+                                        className="rounded-full shrink-0"
+                                    />
+                                ) : (
+                                    <div
+                                        className={cn(
+                                            'rounded-full bg-muted flex items-center justify-center shrink-0',
+                                            expanded ? 'h-8 w-8' : 'h-7 w-7',
+                                        )}
+                                    >
+                                        <UserIcon className={expanded ? 'h-4 w-4' : 'h-3 w-3'} />
+                                    </div>
+                                )}
+                                {expanded && (
+                                    <div className="overflow-hidden flex-1 text-left">
+                                        <p className="text-sm font-medium truncate">{session.user.name}</p>
+                                        <p className="text-xs text-muted-foreground truncate">Mon compte</p>
+                                    </div>
+                                )}
+                            </button>
+                        )}
                         <button
                             onClick={handleSignOut}
                             className={cn(
@@ -342,15 +338,15 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            <main
+            <div
                 className={cn(
                     'min-h-screen bg-background transition-all duration-200 ease-in-out',
-                    'p-4 pt-20 md:p-8 md:pt-8',
+                    'p-4 pt-20 pb-20 md:p-8 md:pt-8 md:pb-8',
                     expanded ? 'md:ml-60' : 'md:ml-17',
                 )}
             >
                 {children}
-            </main>
+            </div>
         </>
     );
 }
