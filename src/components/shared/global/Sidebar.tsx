@@ -118,13 +118,11 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                 <div key={item.name} className="mb-4">
                                     <h3
                                         className={cn(
-                                            'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2',
+                                            'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider',
                                             isBudget && 'text-budget',
                                             isFreelance && 'text-freelance',
                                         )}
                                     >
-                                        {isBudget && <span className="w-1.5 h-1.5 rounded-full bg-budget" />}
-                                        {isFreelance && <span className="w-1.5 h-1.5 rounded-full bg-freelance" />}
                                         {item.name}
                                     </h3>
                                     <ul className="space-y-0.5">
@@ -212,19 +210,15 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                         {expanded && (
                                             <h3
                                                 className={cn(
-                                                    'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2',
+                                                    'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider',
                                                     isBudget && 'text-budget',
                                                     isFreelance && 'text-freelance',
                                                 )}
                                             >
-                                                {isBudget && <span className="w-1.5 h-1.5 rounded-full bg-budget" />}
-                                                {isFreelance && (
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-freelance" />
-                                                )}
                                                 {item.name}
                                             </h3>
                                         )}
-                                        <ul className="space-y-0.5">
+                                        <ul className="space-y-1">
                                             {item.items!.map((subItem) => {
                                                 const isActive = pathname === subItem.href;
                                                 const Icon = subItem.icon;
@@ -264,9 +258,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         onClick={() => setExpanded(!expanded)}
                         title={expanded ? 'Réduire' : 'Agrandir'}
                         className={cn(
-                            'flex w-full items-center rounded-lg text-sm mb-1',
-                            'text-muted-foreground transition-colors duration-150',
-                            'hover:text-foreground hover:bg-muted',
+                            'flex items-center rounded-lg text-sm transition-colors duration-150',
+                            'text-muted-foreground hover:text-foreground hover:bg-muted',
                             expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
                         )}
                     >
@@ -280,39 +273,32 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         )}
                     </button>
 
-                    <div className={cn('border-t border-border mt-auto', expanded ? 'p-3' : 'p-2')}>
+                    <div className={cn('border-t border-border mt-2 p-2')}>
                         {session?.user && (
                             <button
                                 onClick={() => router.push('/account')}
                                 className={cn(
-                                    'w-full rounded-lg transition-all duration-200 hover:bg-muted/50 mb-2',
-                                    expanded ? 'p-3' : 'p-2',
-                                    expanded ? 'flex items-center gap-3' : 'flex justify-center',
+                                    'flex px-3 py-2 w-full items-center rounded-lg transition-all duration-150 hover:bg-muted hover:text-foreground',
+                                    expanded ? 'gap-3' : 'justify-center',
                                 )}
                             >
                                 {session.user.avatar_url ? (
                                     <Image
                                         src={session.user.avatar_url}
                                         alt={session.user.name || 'User'}
-                                        width={expanded ? 32 : 28}
-                                        height={expanded ? 32 : 28}
-                                        className="rounded-full shrink-0"
+                                        width={24}
+                                        height={24}
+                                        className="aspect-square rounded-full object-cover shrink-0"
                                     />
                                 ) : (
-                                    <div
-                                        className={cn(
-                                            'rounded-full bg-muted flex items-center justify-center shrink-0',
-                                            expanded ? 'h-8 w-8' : 'h-7 w-7',
-                                        )}
-                                    >
-                                        <UserIcon className={expanded ? 'h-4 w-4' : 'h-3 w-3'} />
+                                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                        <UserIcon className="h-6 w-6" />
                                     </div>
                                 )}
                                 {expanded && (
-                                    <div className="overflow-hidden flex-1 text-left">
-                                        <p className="text-sm font-medium truncate">{session.user.name}</p>
-                                        <p className="text-xs text-muted-foreground truncate">Mon compte</p>
-                                    </div>
+                                    <p className="text-sm text-end text-muted-foreground truncate">
+                                        {session.user.name}
+                                    </p>
                                 )}
                             </button>
                         )}
@@ -321,8 +307,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                             className={cn(
                                 'flex w-full items-center rounded-lg text-sm',
                                 'text-muted-foreground transition-colors duration-150',
-                                'hover:text-red-400 hover:bg-red-400/10',
-                                expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
+                                'hover:text-red-400 hover:bg-red-400/10 px-3 py-2',
+                                expanded ? 'gap-3' : 'justify-center',
                             )}
                         >
                             <LogOut className="h-4 w-4 shrink-0" />

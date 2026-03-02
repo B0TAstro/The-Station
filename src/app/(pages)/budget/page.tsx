@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Header } from '@/components/shared/global';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui';
 import { TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
@@ -15,6 +16,7 @@ interface BudgetData {
 }
 
 export default function BudgetPage() {
+    const { data: session, status } = useSession();
     const [data, setData] = useState<BudgetData>({
         income: 0,
         expenses: 0,
@@ -24,7 +26,11 @@ export default function BudgetPage() {
     });
 
     useEffect(() => {
+        if (status === 'loading') return;
+
         async function checkConnection() {
+            if (!session?.user) return;
+
             try {
                 const res = await fetch('/api/transactions/true-layer/connected');
                 const result = await res.json();
@@ -34,7 +40,7 @@ export default function BudgetPage() {
             }
         }
         checkConnection();
-    }, []);
+    }, [session, status]);
 
     return (
         <div>
