@@ -71,12 +71,31 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     />
                     <span className="text-sm font-semibold">The Station</span>
                 </Link>
-                <button
-                    onClick={() => setMobileOpen(!mobileOpen)}
-                    className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                    {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
+                <div className="flex items-center gap-2">
+                    {session?.user && (
+                        <button onClick={() => router.push('/account')} className="flex items-center">
+                            {session.user.avatar_url ? (
+                                <Image
+                                    src={session.user.avatar_url}
+                                    alt={session.user.name || 'User'}
+                                    width={32}
+                                    height={32}
+                                    className="aspect-square rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                                    <UserIcon className="h-4 w-4" />
+                                </div>
+                            )}
+                        </button>
+                    )}
+                    <button
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </button>
+                </div>
             </div>
 
             {mobileOpen && (
@@ -89,31 +108,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     mobileOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
-                {session?.user && (
-                    <button
-                        onClick={() => router.push('/account')}
-                        className="w-full border-b border-border p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
-                    >
-                        {session?.user.avatar_url ? (
-                            <Image
-                                src={session.user.avatar_url}
-                                alt={session.user.name || 'User'}
-                                width={32}
-                                height={32}
-                                className="rounded-full"
-                            />
-                        ) : (
-                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                                <UserIcon className="h-4 w-4" />
-                            </div>
-                        )}
-                        <div className="overflow-hidden flex-1 text-left">
-                            <p className="text-sm font-medium truncate">{session.user.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">Voir le profil</p>
-                        </div>
-                    </button>
-                )}
-
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-4">
                     {navigation.map((item) => {
                         if ('items' in item) {

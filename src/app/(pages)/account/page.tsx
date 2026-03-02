@@ -154,7 +154,7 @@ export default function AccountPage() {
 
     if (loading) {
         return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur">
+            <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-budget" />
             </div>
         );
