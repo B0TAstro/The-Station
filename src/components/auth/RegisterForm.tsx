@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Input } from '@/components/ui';
-import ImageUpload from '@/components/ui/ImageUpload';
+import { Input } from '@/components/shared/ui';
+import ImageUpload from '@/components/shared/ui/ImageUpload';
 import { Loader2, UserPlus, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { registerSchema } from '@/lib/schemas/auth';

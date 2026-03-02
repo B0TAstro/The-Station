@@ -1,7 +1,7 @@
 'use client';
 
-import { Header } from '@/components/global';
-import { Card, CardContent, Button } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Card, CardContent, Button } from '@/components/shared/ui';
 import { Plus, GripVertical, Briefcase } from 'lucide-react';
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/utils';

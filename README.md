@@ -1,6 +1,6 @@
 # 🌍 The Station
 
-Personal finance & freelance dashboard — built with Next.js, Supabase, Plaid, and Resend
+Personal finance & freelance dashboard — built with Next.js, Supabase, TrueLayer, and Resend
 
 A private, all-in-one web app to manage your bank account, track freelance projects, monitor subscriptions, and visualize your finances — designed as a PWA for mobile use
 
@@ -8,7 +8,7 @@ A private, all-in-one web app to manage your bank account, track freelance proje
 
 ### 💰 Budget
 
-- **Bank sync** via Plaid — automatic transaction import
+- **Bank sync** via TrueLayer — automatic transaction import
 - **Transaction history** with search, filters by category
 - **Subscription manager** with renewal reminders (via Resend email)
 - **Budget graphs** — monthly income vs expenses, category breakdown
@@ -42,7 +42,7 @@ A private, all-in-one web app to manage your bank account, track freelance proje
 | Styling   | Tailwind CSS 4               |
 | Auth      | NextAuth v5                  |
 | Database  | Supabase (PostgreSQL)        |
-| Banking   | Plaid API                    |
+| Banking   | TrueLayer API                |
 | Email     | Resend                       |
 | Charts    | Recharts                     |
 | Icons     | Lucide React                 |
@@ -55,7 +55,7 @@ A private, all-in-one web app to manage your bank account, track freelance proje
 - Node.js 20+
 - npm
 - A [Supabase](https://supabase.com) project
-- A [Plaid](https://dashboard.plaid.com) account (sandbox for dev)
+- A [TrueLayer](https://console.truelayer.com) account (sandbox for dev)
 - A [Resend](https://resend.com) API key
 
 ### Installation
@@ -80,14 +80,14 @@ npm run dev
 
 See `.env.example` for the full list. Key variables:
 
-| Variable            | Description                                     |
-| ------------------- | ----------------------------------------------- |
-| `NEXTAUTH_SECRET`   | Auth encryption key (`openssl rand -base64 32`) |
-| `SUPABASE_URL`      | Supabase project URL                            |
-| `SUPABASE_ANON_KEY` | Supabase anonymous key                          |
-| `PLAID_CLIENT_ID`   | Plaid client ID                                 |
-| `PLAID_SECRET`      | Plaid secret key                                |
-| `RESEND_API_KEY`    | Resend API key for email reminders              |
+| Variable                  | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| `NEXTAUTH_SECRET`         | Auth encryption key (`openssl rand -base64 32`) |
+| `SUPABASE_URL`            | Supabase project URL                            |
+| `SUPABASE_ANON_KEY`       | Supabase anonymous key                          |
+| `TRUELAYER_CLIENT_ID`     | TrueLayer client ID                             |
+| `TRUELAYER_CLIENT_SECRET` | TrueLayer client secret                         |
+| `RESEND_API_KEY`          | Resend API key for email reminders              |
 
 ## 📁 Project Structure
 
@@ -133,7 +133,7 @@ src/
 │   ├── server/                 # Server-side code
 │   │   ├── supabase-admin.ts  # Supabase admin client
 │   │   ├── email.ts           # Resend email sending
-│   │   └── plaid.ts           # Plaid API integration
+│   │   └── true-layer.ts    # TrueLayer API integration
 │   ├── client/                 # Client-side code
 │   │   └── supabase.ts        # Supabase client
 │   ├── middleware/
@@ -145,14 +145,64 @@ src/
 
 ---
 
+## 🗄 Database Schema
+
+### users
+
+| Column             | Type        | Constraints                    |
+| ------------------ | ----------- | ------------------------------ |
+| id                 | uuid        | PK, default uuid_generate_v4() |
+| email              | text        | NOT NULL, UNIQUE               |
+| password           | text        | NOT NULL                       |
+| pseudo             | text        |                                |
+| nom                | text        |                                |
+| prenom             | text        |                                |
+| avatar_url         | text        |                                |
+| authorized_access  | boolean     | DEFAULT false                  |
+| reset_token        | text        |                                |
+| reset_token_expiry | timestamptz |                                |
+| created_at         | timestamptz | DEFAULT NOW()                  |
+
+### truelayer_tokens
+
+| Column        | Type        | Constraints                       |
+| ------------- | ----------- | --------------------------------- |
+| id            | uuid        | PK, default uuid_generate_v4()    |
+| user_id       | uuid        | FK → users(id), ON DELETE CASCADE |
+| access_token  | text        | NOT NULL                          |
+| refresh_token | text        | NOT NULL                          |
+| expires_at    | timestamptz | NOT NULL                          |
+| provider_id   | text        |                                   |
+| provider_name | text        |                                   |
+| created_at    | timestamptz | DEFAULT NOW()                     |
+| updated_at    | timestamptz | DEFAULT NOW()                     |
+
+### transactions
+
+| Column                   | Type        | Constraints                       |
+| ------------------------ | ----------- | --------------------------------- |
+| id                       | uuid        | PK, default uuid_generate_v4()    |
+| user_id                  | uuid        | FK → users(id), ON DELETE CASCADE |
+| truelayer_transaction_id | text        | UNIQUE                            |
+| truelayer_token_id       | uuid        | FK → truelayer_tokens(id)         |
+| amount                   | numeric     | NOT NULL                          |
+| date                     | date        | NOT NULL                          |
+| description              | text        | NOT NULL                          |
+| category                 | text        |                                   |
+| merchant_name            | text        |                                   |
+| is_pending               | boolean     | DEFAULT false                     |
+| created_at               | timestamptz | DEFAULT NOW()                     |
+
+---
+
 ## 🗺 Roadmap
 
 ### Phase 1 — Data Integration _(next)_
 
 - [x] Supabase tables setup (transactions, subscriptions, projects, portfolio)
-- [ ] Plaid Link integration — connect real bank accounts
-- [ ] Store Plaid access tokens securely in Supabase
-- [ ] Fetch and display real transactions from Plaid
+- [ ] TrueLayer integration — connect real bank accounts
+- [ ] Store TrueLayer tokens securely in Supabase
+- [ ] Fetch and display real transactions from TrueLayer
 - [ ] CRUD operations for subscriptions (add, edit, delete)
 - [ ] CRUD operations for freelance projects
 - [ ] CRUD operations for portfolio sites

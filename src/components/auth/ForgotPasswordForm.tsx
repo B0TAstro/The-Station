@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Input } from '@/components/ui';
+import { Button, Input } from '@/components/shared/ui';
 import { Mail, Loader2, ArrowLeft, KeyRound } from 'lucide-react';
 import { forgotPasswordSchema } from '@/lib/schemas/auth';
 

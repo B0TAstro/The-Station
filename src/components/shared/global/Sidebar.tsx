@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import {
-    LayoutDashboard,
     Wallet,
     CreditCard,
     Receipt,
@@ -23,13 +22,9 @@ import {
     X,
     User as UserIcon,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const navigation = [
-    {
-        name: 'Dashboard',
-        href: '/',
-        icon: LayoutDashboard,
-    },
     {
         name: 'Budget',
         section: 'budget',
@@ -54,6 +49,7 @@ const navigation = [
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
     const { data: session } = useSession();
     const [expanded, setExpanded] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -75,12 +71,31 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     />
                     <span className="text-sm font-semibold">The Station</span>
                 </Link>
-                <button
-                    onClick={() => setMobileOpen(!mobileOpen)}
-                    className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                    {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
+                <div className="flex items-center gap-2">
+                    {session?.user && (
+                        <button onClick={() => router.push('/account')} className="flex items-center">
+                            {session.user.avatar_url ? (
+                                <Image
+                                    src={session.user.avatar_url}
+                                    alt={session.user.name || 'User'}
+                                    width={32}
+                                    height={32}
+                                    className="aspect-square rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                                    <UserIcon className="h-4 w-4" />
+                                </div>
+                            )}
+                        </button>
+                    )}
+                    <button
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </button>
+                </div>
             </div>
 
             {mobileOpen && (
@@ -93,28 +108,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     mobileOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
-                {session?.user && (
-                    <div className="border-b border-border p-4 flex items-center gap-3">
-                        {session?.user.avatar_url ? (
-                            <Image
-                                src={session.user.avatar_url}
-                                alt={session.user.name || 'User'}
-                                width={32}
-                                height={32}
-                                className="rounded-full"
-                            />
-                        ) : (
-                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                                <UserIcon className="h-4 w-4" />
-                            </div>
-                        )}
-                        <div className="overflow-hidden flex-1">
-                            <p className="text-sm font-medium truncate">{session.user.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
-                        </div>
-                    </div>
-                )}
-
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-4">
                     {navigation.map((item) => {
                         if ('items' in item) {
@@ -125,11 +118,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                 <div key={item.name} className="mb-4">
                                     <h3
                                         className={cn(
-                                            'mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground',
-                                            isBudget && 'text-budget/70',
-                                            isFreelance && 'text-freelance/70',
+                                            'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2',
+                                            isBudget && 'text-budget',
+                                            isFreelance && 'text-freelance',
                                         )}
                                     >
+                                        {isBudget && <span className="w-1.5 h-1.5 rounded-full bg-budget" />}
+                                        {isFreelance && <span className="w-1.5 h-1.5 rounded-full bg-freelance" />}
                                         {item.name}
                                     </h3>
                                     <ul className="space-y-0.5">
@@ -164,25 +159,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                 </div>
                             );
                         }
-
-                        const isActive = pathname === item.href;
-                        const Icon = item.icon;
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setMobileOpen(false)}
-                                className={cn(
-                                    'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm mb-2 transition-colors duration-150',
-                                    isActive && 'bg-foreground/10 text-foreground font-medium',
-                                    !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted',
-                                )}
-                            >
-                                <Icon className="h-4 w-4" />
-                                {item.name}
-                            </Link>
-                        );
                     })}
                 </nav>
 
@@ -225,41 +201,6 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                         </Link>
                     </div>
 
-                    {session?.user && (
-                        <div
-                            className={cn(
-                                'border-b border-border transition-all duration-200',
-                                expanded ? 'p-3' : 'p-2',
-                            )}
-                        >
-                            <div
-                                className={cn(
-                                    'flex items-center rounded-lg bg-muted/50',
-                                    expanded ? 'gap-3 p-2' : 'justify-center p-2',
-                                )}
-                            >
-                                {session.user.avatar_url ? (
-                                    <Image
-                                        src={session.user.avatar_url}
-                                        alt={session.user.name || 'User'}
-                                        width={24}
-                                        height={24}
-                                        className="rounded-full shrink-0"
-                                    />
-                                ) : (
-                                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-                                        <UserIcon className="h-3 w-3" />
-                                    </div>
-                                )}
-                                {expanded && (
-                                    <div className="overflow-hidden flex-1">
-                                        <p className="text-xs font-medium truncate">{session.user.name}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
                     <nav className={cn('flex-1 space-y-1 overflow-y-auto pt-2', expanded ? 'px-3' : 'px-2')}>
                         {navigation.map((item) => {
                             if ('items' in item) {
@@ -271,11 +212,15 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                         {expanded && (
                                             <h3
                                                 className={cn(
-                                                    'mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground',
-                                                    isBudget && 'text-budget/70',
-                                                    isFreelance && 'text-freelance/70',
+                                                    'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider flex items-center gap-2',
+                                                    isBudget && 'text-budget',
+                                                    isFreelance && 'text-freelance',
                                                 )}
                                             >
+                                                {isBudget && <span className="w-1.5 h-1.5 rounded-full bg-budget" />}
+                                                {isFreelance && (
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-freelance" />
+                                                )}
                                                 {item.name}
                                             </h3>
                                         )}
@@ -312,49 +257,65 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                                     </div>
                                 );
                             }
-
-                            const isActive = pathname === item.href;
-                            const Icon = item.icon;
-
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    title={!expanded ? item.name : undefined}
-                                    className={cn(
-                                        'flex items-center rounded-lg text-sm mb-2 transition-colors duration-150',
-                                        expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
-                                        isActive && 'bg-foreground/10 text-foreground font-medium',
-                                        !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted',
-                                    )}
-                                >
-                                    <Icon className="h-4 w-4 shrink-0" />
-                                    {expanded && item.name}
-                                </Link>
-                            );
                         })}
                     </nav>
 
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        title={expanded ? 'Réduire' : 'Agrandir'}
+                        className={cn(
+                            'flex w-full items-center rounded-lg text-sm mb-1',
+                            'text-muted-foreground transition-colors duration-150',
+                            'hover:text-foreground hover:bg-muted',
+                            expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
+                        )}
+                    >
+                        {expanded ? (
+                            <>
+                                <PanelLeftClose className="h-4 w-4 shrink-0" />
+                                Réduire
+                            </>
+                        ) : (
+                            <PanelLeftOpen className="h-4 w-4" />
+                        )}
+                    </button>
+
                     <div className={cn('border-t border-border mt-auto', expanded ? 'p-3' : 'p-2')}>
-                        <button
-                            onClick={() => setExpanded(!expanded)}
-                            title={expanded ? 'Réduire' : 'Agrandir'}
-                            className={cn(
-                                'flex w-full items-center rounded-lg text-sm mb-1',
-                                'text-muted-foreground transition-colors duration-150',
-                                'hover:text-foreground hover:bg-muted',
-                                expanded ? 'gap-2.5 px-3 py-2' : 'justify-center p-2.5',
-                            )}
-                        >
-                            {expanded ? (
-                                <>
-                                    <PanelLeftClose className="h-4 w-4 shrink-0" />
-                                    Réduire
-                                </>
-                            ) : (
-                                <PanelLeftOpen className="h-4 w-4" />
-                            )}
-                        </button>
+                        {session?.user && (
+                            <button
+                                onClick={() => router.push('/account')}
+                                className={cn(
+                                    'w-full rounded-lg transition-all duration-200 hover:bg-muted/50 mb-2',
+                                    expanded ? 'p-3' : 'p-2',
+                                    expanded ? 'flex items-center gap-3' : 'flex justify-center',
+                                )}
+                            >
+                                {session.user.avatar_url ? (
+                                    <Image
+                                        src={session.user.avatar_url}
+                                        alt={session.user.name || 'User'}
+                                        width={expanded ? 32 : 28}
+                                        height={expanded ? 32 : 28}
+                                        className="rounded-full shrink-0"
+                                    />
+                                ) : (
+                                    <div
+                                        className={cn(
+                                            'rounded-full bg-muted flex items-center justify-center shrink-0',
+                                            expanded ? 'h-8 w-8' : 'h-7 w-7',
+                                        )}
+                                    >
+                                        <UserIcon className={expanded ? 'h-4 w-4' : 'h-3 w-3'} />
+                                    </div>
+                                )}
+                                {expanded && (
+                                    <div className="overflow-hidden flex-1 text-left">
+                                        <p className="text-sm font-medium truncate">{session.user.name}</p>
+                                        <p className="text-xs text-muted-foreground truncate">Mon compte</p>
+                                    </div>
+                                )}
+                            </button>
+                        )}
                         <button
                             onClick={handleSignOut}
                             className={cn(
@@ -371,15 +332,15 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            <main
+            <div
                 className={cn(
                     'min-h-screen bg-background transition-all duration-200 ease-in-out',
-                    'p-4 pt-20 md:p-8 md:pt-8',
+                    'p-4 pt-20 pb-20 md:p-8 md:pt-8 md:pb-8',
                     expanded ? 'md:ml-60' : 'md:ml-17',
                 )}
             >
                 {children}
-            </main>
+            </div>
         </>
     );
 }

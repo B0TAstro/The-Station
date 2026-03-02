@@ -6,6 +6,8 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
+    prenom: z.string(),
+    nom: z.string(),
     pseudo: z.string(),
     email: z.string().email('Email invalide'),
     password: z.string().min(6, 'Le mot de passe doit faire au moins 6 caractères'),

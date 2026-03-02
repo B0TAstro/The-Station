@@ -1,7 +1,7 @@
 'use client';
 
-import { Header } from '@/components/global';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/ui';
+import { Header } from '@/components/shared/global';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@/components/shared/ui';
 import { Bell, BellOff, Calendar, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
