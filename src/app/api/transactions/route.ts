@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { createAdminClient } from '@/lib/server/supabase-admin';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
         const session = await auth();
 
@@ -11,6 +11,8 @@ export async function GET(_request: NextRequest) {
         }
 
         const supabase = createAdminClient();
+        const { searchParams } = new URL(request.url);
+        const uncategorisedOnly = searchParams.get('uncategorised') === 'true';
 
         const { data: user, error: userError } = await supabase
             .from('users')
@@ -22,12 +24,25 @@ export async function GET(_request: NextRequest) {
             console.error('Error fetching user:', userError);
         }
 
-        const { data: transactions, error } = await supabase
+        const { count: uncategorisedCount } = await supabase
+            .from('transactions')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', session.user.id)
+            .or('is_categorised.eq.false,is_categorised.is.null');
+
+        let query = supabase
             .from('transactions')
             .select('*')
             .eq('user_id', session.user.id)
-            .order('date', { ascending: false })
-            .limit(100);
+            .order('date', { ascending: false });
+
+        if (uncategorisedOnly) {
+            query = query.or('is_categorised.eq.false,is_categorised.is.null');
+        } else {
+            query = query.limit(100);
+        }
+
+        const { data: transactions, error } = await query;
 
         if (error) {
             console.error('Error fetching transactions:', error);
@@ -37,6 +52,7 @@ export async function GET(_request: NextRequest) {
         return NextResponse.json({
             transactions: transactions || [],
             lastCsvImport: user?.last_csv_import || null,
+            uncategorisedCount: uncategorisedCount || 0,
         });
     } catch (err) {
         console.error('Error fetching transactions:', err);
