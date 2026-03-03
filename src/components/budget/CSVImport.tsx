@@ -14,12 +14,14 @@ export function CSVImport({ onImport }: CSVImportProps) {
     const [importing, setImporting] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [detectedAccounts, setDetectedAccounts] = useState<DetectedAccount[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
+        setSelectedFile(file);
         setError(null);
         setImporting(true);
 
@@ -42,20 +44,14 @@ export function CSVImport({ onImport }: CSVImportProps) {
                 setDetectedAccounts(data.accounts);
                 setShowModal(true);
                 setImporting(false);
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
                 return;
             }
 
             onImport?.();
+            setSelectedFile(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur lors de l'import");
-        } finally {
             setImporting(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
         }
     };
 
@@ -64,13 +60,12 @@ export function CSVImport({ onImport }: CSVImportProps) {
         setImporting(true);
 
         try {
-            const file = fileInputRef.current?.files?.[0];
-            if (!file) {
+            if (!selectedFile) {
                 throw new Error('No file selected');
             }
 
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', selectedFile);
             formData.append('confirmedAccounts', JSON.stringify(confirmedAccounts));
 
             const res = await fetch('/api/transactions/csv', {
@@ -89,6 +84,7 @@ export function CSVImport({ onImport }: CSVImportProps) {
             setError(err instanceof Error ? err.message : "Erreur lors de l'import");
         } finally {
             setImporting(false);
+            setSelectedFile(null);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -124,7 +120,10 @@ export function CSVImport({ onImport }: CSVImportProps) {
                 <AccountConfirmModal
                     accounts={detectedAccounts}
                     onConfirm={handleConfirm}
-                    onCancel={() => setShowModal(false)}
+                    onCancel={() => {
+                        setShowModal(false);
+                        setSelectedFile(null);
+                    }}
                 />
             )}
         </>

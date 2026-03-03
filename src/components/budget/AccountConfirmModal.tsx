@@ -12,23 +12,32 @@ export interface DetectedAccount {
 
 interface AccountConfirmModalProps {
     accounts: DetectedAccount[];
-    onConfirm: (confirmedAccounts: Array<{ accountNumber: string | null; accountName: string }>) => void;
+    onConfirm: (
+        confirmedAccounts: Array<{ accountNumber: string | null; accountName: string; accountType: string }>,
+    ) => void;
     onCancel: () => void;
 }
 
+const ACCOUNT_TYPES = [
+    { value: 'courant', label: 'Courant' },
+    { value: 'epargne', label: 'Épargne' },
+    { value: 'depot', label: 'Dépôt' },
+    { value: 'autre', label: 'Autre' },
+];
+
 export function AccountConfirmModal({ accounts, onConfirm, onCancel }: AccountConfirmModalProps) {
     const newAccounts = accounts.filter((acc) => !acc.exists);
-    const existingAccounts = accounts.filter((acc) => acc.exists);
     const isSingleNewAccount = newAccounts.length === 1;
 
     const [currentStep, setCurrentStep] = useState(0);
-    const [confirmedNames, setConfirmedNames] = useState<Record<number, string>>(() => {
-        const initial: Record<number, string> = {};
-        newAccounts.forEach((acc, idx) => {
-            initial[idx] = acc.accountName;
-        });
-        return initial;
+    const [currentName, setCurrentName] = useState(() => {
+        if (newAccounts.length > 0) {
+            return newAccounts[0].accountName;
+        }
+        return '';
     });
+    const [currentType, setCurrentType] = useState('courant');
+    const [customTypeName, setCustomTypeName] = useState('');
 
     const currentNewAccount = newAccounts[currentStep];
     const isLastNewAccount = currentStep === newAccounts.length - 1;
@@ -40,23 +49,37 @@ export function AccountConfirmModal({ accounts, onConfirm, onCancel }: AccountCo
         return `Compte ${currentStep + 1}`;
     };
 
+    const getFinalType = () => {
+        if (currentType === 'autre' && customTypeName.trim()) {
+            return customTypeName.trim();
+        }
+        return currentType;
+    };
+
     const handleNext = () => {
-        const updatedNames = { ...confirmedNames, [currentStep]: currentName };
+        const confirmedData = {
+            accountNumber: currentNewAccount.accountNumber,
+            accountName: currentName,
+            accountType: getFinalType(),
+        };
 
         if (isLastNewAccount) {
-            const result = accounts.map((acc, idx) => {
-                if (acc.exists) {
-                    return { accountNumber: acc.accountNumber, accountName: acc.accountName };
-                }
-                const newIdx = newAccounts.indexOf(acc);
-                return { accountNumber: acc.accountNumber, accountName: updatedNames[newIdx] || acc.accountName };
-            });
+            const existingData = accounts
+                .filter((acc) => acc.exists)
+                .map((acc) => ({
+                    accountNumber: acc.accountNumber,
+                    accountName: acc.accountName,
+                    accountType: 'courant',
+                }));
+
+            const result = [...existingData, confirmedData];
             onConfirm(result);
         } else {
-            setConfirmedNames(updatedNames);
             setCurrentStep((prev) => prev + 1);
             if (newAccounts[currentStep + 1]) {
                 setCurrentName(newAccounts[currentStep + 1].accountName);
+                setCurrentType('courant');
+                setCustomTypeName('');
             }
         }
     };
@@ -68,22 +91,18 @@ export function AccountConfirmModal({ accounts, onConfirm, onCancel }: AccountCo
                 .map((acc) => ({
                     accountNumber: acc.accountNumber,
                     accountName: acc.accountName,
+                    accountType: 'courant',
                 }));
             onConfirm(result);
         } else {
             setCurrentStep((prev) => prev + 1);
             if (newAccounts[currentStep + 1]) {
                 setCurrentName(newAccounts[currentStep + 1].accountName);
+                setCurrentType('courant');
+                setCustomTypeName('');
             }
         }
     };
-
-    const [currentName, setCurrentName] = useState(() => {
-        if (newAccounts.length > 0) {
-            return confirmedNames[currentStep] || newAccounts[0].accountName;
-        }
-        return '';
-    });
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -104,6 +123,37 @@ export function AccountConfirmModal({ accounts, onConfirm, onCancel }: AccountCo
                             placeholder="Nom du compte"
                         />
                     </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm text-muted-foreground">Type de compte</label>
+                        <select
+                            value={currentType}
+                            onChange={(e) => {
+                                setCurrentType(e.target.value);
+                                if (e.target.value !== 'autre') {
+                                    setCustomTypeName('');
+                                }
+                            }}
+                            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-budget"
+                        >
+                            {ACCOUNT_TYPES.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                    {type.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {currentType === 'autre' && (
+                        <div className="space-y-2">
+                            <label className="text-sm text-muted-foreground">Nom du type</label>
+                            <Input
+                                value={customTypeName}
+                                onChange={(e) => setCustomTypeName(e.target.value)}
+                                placeholder="Autre type..."
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex gap-3 justify-end">
