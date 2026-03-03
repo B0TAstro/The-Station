@@ -2,6 +2,158 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { createAdminClient } from '@/lib/server/supabase-admin';
 
+interface Account {
+    id: string;
+    user_id: string;
+    account_type: string | null;
+    account_number: string | null;
+    account_name: string | null;
+    source_type: string;
+}
+
+function parseAccountsFromCSV(
+    lines: string[],
+): Array<{ accountNumber: string | null; accountName: string; rawLine: string }> {
+    const accounts: Array<{ accountNumber: string | null; accountName: string; rawLine: string }> = [];
+    const seenAccountNumbers = new Set<string>();
+
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
+        if (!trimmed) continue;
+
+        const carteMatch = trimmed.match(/(.+?)\s*carte\s*n°\s*(\d+)/i);
+        if (carteMatch) {
+            const accountNumber = carteMatch[2];
+            if (!seenAccountNumbers.has(accountNumber)) {
+                seenAccountNumbers.add(accountNumber);
+                accounts.push({
+                    accountNumber: accountNumber,
+                    accountName: carteMatch[1].trim().replace(/["']/g, '') || 'Compte courant',
+                    rawLine: trimmed,
+                });
+            }
+            continue;
+        }
+
+        if (
+            trimmed.includes('Livret') ||
+            trimmed.includes('LEP') ||
+            trimmed.includes('CEL') ||
+            trimmed.includes('PEL')
+        ) {
+            const accountName = trimmed.replace(/["']/g, '').trim();
+            if (!seenAccountNumbers.has(accountName)) {
+                seenAccountNumbers.add(accountName);
+                accounts.push({
+                    accountNumber: null,
+                    accountName: accountName,
+                    rawLine: trimmed,
+                });
+            }
+        }
+    }
+
+    return accounts;
+}
+
+function parseAccountInfo(lines: string[]): { accountNumber: string | null; accountName: string | null } {
+    const accounts = parseAccountsFromCSV(lines);
+    if (accounts.length > 0) {
+        return {
+            accountNumber: accounts[0].accountNumber,
+            accountName: accounts[0].accountName,
+        };
+    }
+    return { accountNumber: null, accountName: 'Compte courant' };
+}
+
+async function checkAccountsExist(
+    supabase: ReturnType<typeof createAdminClient>,
+    userId: string,
+    accounts: Array<{ accountNumber: string | null; accountName: string }>,
+): Promise<Array<{ accountNumber: string | null; accountName: string; exists: boolean; id?: string }>> {
+    const results = [];
+
+    for (const acc of accounts) {
+        let existing = null;
+        if (acc.accountNumber) {
+            const { data } = await supabase
+                .from('accounts')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('account_number', acc.accountNumber)
+                .maybeSingle();
+            existing = data;
+        }
+
+        if (!existing) {
+            const { data } = await supabase
+                .from('accounts')
+                .select('*')
+                .eq('user_id', userId)
+                .eq('account_name', acc.accountName)
+                .maybeSingle();
+            existing = data;
+        }
+
+        results.push({
+            accountNumber: acc.accountNumber,
+            accountName: acc.accountName,
+            exists: !!existing,
+            id: existing?.id,
+        });
+    }
+
+    return results;
+}
+
+async function getOrCreateAccount(
+    supabase: ReturnType<typeof createAdminClient>,
+    userId: string,
+    accountNumber: string | null,
+    accountName: string | null,
+): Promise<Account> {
+    if (accountNumber) {
+        const { data: existing } = await supabase
+            .from('accounts')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('account_number', accountNumber)
+            .maybeSingle();
+
+        if (existing) return existing;
+    }
+
+    const { data: existingByName } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('account_name', accountName)
+        .maybeSingle();
+
+    if (existingByName) return existingByName;
+
+    const { data: newAccount, error } = await supabase
+        .from('accounts')
+        .insert({
+            user_id: userId,
+            account_type: 'compte_depot',
+            account_number: accountNumber,
+            account_name: accountName,
+            source_type: 'csv',
+        })
+        .select()
+        .single();
+
+    if (error) throw new Error('Failed to create account');
+    return newAccount;
+}
+
+function generateSourceId(accountId: string, date: string, amount: number, description: string): string {
+    const hash = Buffer.from(`${accountId}|${date}|${amount}|${description}`).toString('base64').slice(0, 32);
+    return `csv_${hash}`;
+}
+
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();
@@ -22,6 +174,49 @@ export async function POST(request: NextRequest) {
         const utf8Text = buffer.toString('latin1');
         const lines = utf8Text.split('\n');
 
+        const confirmedAccountsJson = formData.get('confirmedAccounts') as string | null;
+        const confirmedAccounts = confirmedAccountsJson ? JSON.parse(confirmedAccountsJson) : null;
+
+        const detectedAccounts = parseAccountsFromCSV(lines);
+        console.log('Detected accounts:', JSON.stringify(detectedAccounts));
+
+        if (detectedAccounts.length === 0) {
+            detectedAccounts.push({ accountNumber: null, accountName: 'Compte courant', rawLine: '' });
+        }
+
+        const supabase = createAdminClient();
+
+        let accounts: Account[];
+
+        if (confirmedAccounts) {
+            console.log('Confirmed accounts:', JSON.stringify(confirmedAccounts));
+            accounts = await Promise.all(
+                confirmedAccounts.map((acc: { accountNumber: string | null; accountName: string }) =>
+                    getOrCreateAccount(supabase, session.user.id, acc.accountNumber, acc.accountName),
+                ),
+            );
+        } else {
+            const accountChecks = await checkAccountsExist(supabase, session.user.id, detectedAccounts);
+            console.log('Account checks:', JSON.stringify(accountChecks));
+            const hasNewAccounts = accountChecks.some((acc) => !acc.exists);
+
+            if (hasNewAccounts) {
+                console.log('Returning needsConfirmation');
+                return NextResponse.json({
+                    needsConfirmation: true,
+                    accounts: accountChecks,
+                });
+            }
+
+            accounts = await Promise.all(
+                accountChecks.map((acc) =>
+                    getOrCreateAccount(supabase, session.user.id, acc.accountNumber, acc.accountName),
+                ),
+            );
+        }
+
+        console.log('Using accounts:', JSON.stringify(accounts));
+
         const transactions: Array<{
             user_id: string;
             source_type: string;
@@ -29,8 +224,9 @@ export async function POST(request: NextRequest) {
             amount: number;
             date: string;
             description: string;
-            merchant_name: string | null;
-            category: string[] | null;
+            name: string;
+            category: string | null;
+            account_id: string;
         }> = [];
 
         let headerRowIndex = -1;
@@ -39,11 +235,13 @@ export async function POST(request: NextRequest) {
         let debitCol = -1;
         let creditCol = -1;
 
+        console.log('Looking for header in first 15 lines...');
         for (let i = 0; i < Math.min(lines.length, 15); i++) {
             const line = lines[i].trim();
             if (!line) continue;
 
             const headers = line.split(';').map((h) => removeDiacritics(h.trim().replace(/"/g, '').toLowerCase()));
+            console.log(`Line ${i}:`, headers);
 
             if (
                 headers[0]?.includes('date') ||
@@ -57,13 +255,19 @@ export async function POST(request: NextRequest) {
                     if (h.includes('debit')) debitCol = idx;
                     if (h.includes('credit')) creditCol = idx;
                 });
+                console.log(
+                    `Found header at line ${i}: dateCol=${dateCol}, libelleCol=${libelleCol}, debitCol=${debitCol}, creditCol=${creditCol}`,
+                );
                 break;
             }
         }
 
         if (headerRowIndex === -1) {
+            console.error('Header not found');
             return NextResponse.json({ error: 'Header row not found. Format not recognized.' }, { status: 400 });
         }
+
+        console.log(`Parsing transactions from line ${headerRowIndex + 1} to ${lines.length}`);
 
         let currentTransaction: { date: string; libelle: string; debit: number; credit: number } | null = null;
         let accumulatedLine = '';
@@ -101,16 +305,23 @@ export async function POST(request: NextRequest) {
                     const amount =
                         currentTransaction.credit > 0 ? currentTransaction.credit : -Math.abs(currentTransaction.debit);
                     if (amount !== 0 && currentTransaction.libelle) {
-                        const transactionId = `csv_${Date.now()}_${lineNum}`;
+                        const parsedDate = parseDate(currentTransaction.date);
+                        const transactionId = generateSourceId(
+                            accounts[0].id,
+                            parsedDate,
+                            amount,
+                            currentTransaction.libelle,
+                        );
                         transactions.push({
                             user_id: session.user.id,
                             source_type: 'csv',
                             source_id: transactionId,
                             amount,
-                            date: parseDate(currentTransaction.date),
+                            date: parsedDate,
                             description: currentTransaction.libelle,
-                            merchant_name: extractMerchant(currentTransaction.libelle),
+                            name: currentTransaction.libelle,
                             category: null,
+                            account_id: accounts[0].id,
                         });
                     }
                 }
@@ -131,25 +342,29 @@ export async function POST(request: NextRequest) {
             const amount =
                 currentTransaction.credit > 0 ? currentTransaction.credit : -Math.abs(currentTransaction.debit);
             if (amount !== 0 && currentTransaction.libelle) {
-                const transactionId = `csv_${Date.now()}_${lines.length}`;
+                const parsedDate = parseDate(currentTransaction.date);
+                const transactionId = generateSourceId(accounts[0].id, parsedDate, amount, currentTransaction.libelle);
                 transactions.push({
                     user_id: session.user.id,
                     source_type: 'csv',
                     source_id: transactionId,
                     amount,
-                    date: parseDate(currentTransaction.date),
+                    date: parsedDate,
                     description: currentTransaction.libelle,
-                    merchant_name: extractMerchant(currentTransaction.libelle),
+                    name: currentTransaction.libelle,
                     category: null,
+                    account_id: accounts[0].id,
                 });
             }
         }
 
         if (transactions.length === 0) {
+            console.error('No transactions parsed');
             return NextResponse.json({ error: 'No valid transactions found' }, { status: 400 });
         }
 
-        const supabase = createAdminClient();
+        console.log(`Parsed ${transactions.length} transactions`);
+
         const { error: upsertError } = await supabase.from('transactions').upsert(transactions, {
             onConflict: 'source_id',
             ignoreDuplicates: true,
@@ -160,7 +375,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to import transactions' }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true, count: transactions.length });
+        const now = new Date();
+        await supabase.from('users').update({ last_csv_import: now.toISOString() }).eq('id', session.user.id);
+
+        return NextResponse.json({ success: true, count: transactions.length, lastImport: now.toISOString() });
     } catch (err) {
         console.error('Error in CSV import:', err);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

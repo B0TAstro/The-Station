@@ -12,6 +12,16 @@ export async function GET(_request: NextRequest) {
 
         const supabase = createAdminClient();
 
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('last_csv_import')
+            .eq('id', session.user.id)
+            .single();
+
+        if (userError) {
+            console.error('Error fetching user:', userError);
+        }
+
         const { data: transactions, error } = await supabase
             .from('transactions')
             .select('*')
@@ -24,7 +34,10 @@ export async function GET(_request: NextRequest) {
             return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 });
         }
 
-        return NextResponse.json({ transactions: transactions || [] });
+        return NextResponse.json({
+            transactions: transactions || [],
+            lastCsvImport: user?.last_csv_import || null,
+        });
     } catch (err) {
         console.error('Error fetching transactions:', err);
         return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 });

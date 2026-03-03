@@ -161,7 +161,20 @@ src/
 | authorized_access  | boolean     | DEFAULT false                  |
 | reset_token        | text        |                                |
 | reset_token_expiry | timestamptz |                                |
+| last_csv_import    | timestamptz |                                |
 | created_at         | timestamptz | DEFAULT NOW()                  |
+
+### accounts
+
+| Column         | Type        | Constraints                       |
+| -------------- | ----------- | --------------------------------- |
+| id             | uuid        | PK, default uuid_generate_v4()    |
+| user_id        | uuid        | FK → users(id), ON DELETE CASCADE |
+| account_type   | text        |                                   |
+| account_number | text        |                                   |
+| account_name   | text        |                                   |
+| source_type    | text        | NOT NULL DEFAULT 'csv'            |
+| created_at     | timestamptz | DEFAULT NOW()                     |
 
 ### truelayer_tokens
 
@@ -169,29 +182,35 @@ src/
 | ------------- | ----------- | --------------------------------- |
 | id            | uuid        | PK, default uuid_generate_v4()    |
 | user_id       | uuid        | FK → users(id), ON DELETE CASCADE |
+| account_id    | uuid        | FK → accounts(id)                 |
 | access_token  | text        | NOT NULL                          |
-| refresh_token | text        | NOT NULL                          |
-| expires_at    | timestamptz | NOT NULL                          |
+| refresh_token | text        |                                   |
+| expires_at    | timestamptz |                                   |
 | provider_id   | text        |                                   |
 | provider_name | text        |                                   |
+| status        | text        | DEFAULT 'active'                  |
 | created_at    | timestamptz | DEFAULT NOW()                     |
 | updated_at    | timestamptz | DEFAULT NOW()                     |
 
 ### transactions
 
-| Column                   | Type        | Constraints                       |
-| ------------------------ | ----------- | --------------------------------- |
-| id                       | uuid        | PK, default uuid_generate_v4()    |
-| user_id                  | uuid        | FK → users(id), ON DELETE CASCADE |
-| truelayer_transaction_id | text        | UNIQUE                            |
-| truelayer_token_id       | uuid        | FK → truelayer_tokens(id)         |
-| amount                   | numeric     | NOT NULL                          |
-| date                     | date        | NOT NULL                          |
-| description              | text        | NOT NULL                          |
-| category                 | text        |                                   |
-| merchant_name            | text        |                                   |
-| is_pending               | boolean     | DEFAULT false                     |
-| created_at               | timestamptz | DEFAULT NOW()                     |
+| Column               | Type        | Constraints                       |
+| -------------------- | ----------- | --------------------------------- |
+| id                   | uuid        | PK, default uuid_generate_v4()    |
+| user_id              | uuid        | FK → users(id), ON DELETE CASCADE |
+| account_id           | uuid        | FK → accounts(id)                 |
+| name                 | text        | NOT NULL                          |
+| description          | text        |                                   |
+| amount               | numeric     | NOT NULL                          |
+| date                 | date        | NOT NULL                          |
+| category             | text        |                                   |
+| is_categorised       | boolean     | DEFAULT false                     |
+| source_type          | text        | NOT NULL DEFAULT 'manual'         |
+| source_id            | text        | UNIQUE                            |
+| truelayer_account_id | text        |                                   |
+| truelayer_token_id   | uuid        | FK → truelayer_tokens(id)         |
+| is_pending           | boolean     | DEFAULT false                     |
+| created_at           | timestamptz | DEFAULT NOW()                     |
 
 ---
 

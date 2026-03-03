@@ -11,11 +11,13 @@ interface Transaction {
     source_type: string;
     truelayer_account_id: string | null;
     truelayer_token_id: string | null;
+    account_id: string | null;
     amount: number;
     date: string;
     description: string;
-    merchant_name: string | null;
-    category: string[] | null;
+    name: string | null;
+    category: string | null;
+    is_categorised: boolean | null;
     user_id: string;
 }
 
@@ -102,17 +104,13 @@ export function TransactionList() {
                                     <span className="text-lg">{transaction.amount > 0 ? '↑' : '↓'}</span>
                                 </div>
                                 <div>
-                                    <p className="font-medium">
-                                        {transaction.merchant_name || transaction.description}
-                                    </p>
+                                    <p className="font-medium">{transaction.name || transaction.description}</p>
                                     <p className="text-sm text-muted-foreground">{formatDate(transaction.date)}</p>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-4">
-                                {transaction.category && transaction.category.length > 0 && (
-                                    <Badge variant="outline">{transaction.category[0]}</Badge>
-                                )}
+                                {transaction.category && <Badge variant="outline">{transaction.category}</Badge>}
                                 <p
                                     className={`font-semibold ${
                                         transaction.amount > 0 ? 'text-green-400' : 'text-red-400'
