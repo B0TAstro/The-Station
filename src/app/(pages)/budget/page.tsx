@@ -1,50 +1,63 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState, useCallback } from 'react';
 import { Header } from '@/components/shared/global';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shared/ui';
 import { TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
+import { PeriodSelector } from '@/components/budget/PeriodSelector';
+import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
 
-interface BudgetData {
+interface SummaryData {
     income: number;
     expenses: number;
     balance: number;
-    subscriptions: number;
-    connected: boolean;
+    subscriptionTotal: number;
 }
 
 export default function BudgetPage() {
-    const { data: session, status } = useSession();
-    const [data, setData] = useState<BudgetData>({
-        income: 0,
-        expenses: 0,
-        balance: 0,
-        subscriptions: 0,
-        connected: false,
-    });
+    const now = new Date();
+    const defaultDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const [period, setPeriod] = useState<'month' | 'quarter' | 'year'>('month');
+    const [date, setDate] = useState(defaultDate);
+    const [data, setData] = useState<SummaryData | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchSummary = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/transactions/summary?period=${period}&date=${date}`);
+            const result = await res.json();
+            if (res.ok) {
+                setData(result);
+            }
+        } catch (err) {
+            console.error('Error fetching summary:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [period, date]);
 
     useEffect(() => {
-        if (status === 'loading') return;
+        fetchSummary();
+    }, [fetchSummary]);
 
-        async function checkConnection() {
-            if (!session?.user) return;
+    const handlePeriodChange = (newPeriod: 'month' | 'quarter' | 'year', newDate: string) => {
+        setPeriod(newPeriod);
+        setDate(newDate);
+    };
 
-            try {
-                const res = await fetch('/api/transactions/true-layer/connected');
-                const result = await res.json();
-                setData((prev) => ({ ...prev, connected: result.connected }));
-            } catch (error) {
-                console.error('Error checking connection:', error);
-            }
-        }
-        checkConnection();
-    }, [session, status]);
+    const displayValue = (value: number | undefined, color?: string) => {
+        if (loading || value === undefined) return '—';
+        return <span className={color || ''}>{formatCurrency(value)}</span>;
+    };
 
     return (
         <div>
-            <Header title="Budget" description="Gère ton budget personnel" variant="budget" />
+            <Header title="Budget" description="Gere ton budget personnel" variant="budget">
+                <PeriodSelector period={period} date={date} onChange={handlePeriodChange} />
+            </Header>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
                 <Card>
@@ -55,21 +68,19 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold text-green-600">{data.connected ? '—' : '—'}</p>
-                        <p className="text-sm text-muted-foreground mt-1">Ce mois</p>
+                        <p className="text-3xl font-semibold text-green-600">{displayValue(data?.income)}</p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader>
                         <div className="flex items-center justify-between">
-                            <CardTitle>Dépenses</CardTitle>
+                            <CardTitle>Depenses</CardTitle>
                             <TrendingDown className="h-5 w-5 text-red-600" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold text-red-600">{data.connected ? '—' : '—'}</p>
-                        <p className="text-sm text-muted-foreground mt-1">Ce mois</p>
+                        <p className="text-3xl font-semibold text-red-600">{displayValue(data?.expenses)}</p>
                     </CardContent>
                 </Card>
 
@@ -81,8 +92,11 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold">{data.connected ? '—' : '—'}</p>
-                        <p className="text-sm text-muted-foreground mt-1">Disponible</p>
+                        <p
+                            className={`text-3xl font-semibold ${data && data.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                        >
+                            {displayValue(data?.balance)}
+                        </p>
                     </CardContent>
                 </Card>
 
@@ -94,8 +108,7 @@ export default function BudgetPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-semibold">{data.subscriptions || '—'}</p>
-                        <p className="text-sm text-muted-foreground mt-1">/ mois</p>
+                        <p className="text-3xl font-semibold">{displayValue(data?.subscriptionTotal)}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -118,7 +131,7 @@ export default function BudgetPage() {
                             <CardTitle>Abonnements</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">Gérer tes abonnements et rappels</p>
+                            <p className="text-muted-foreground">Gerer tes abonnements et rappels</p>
                         </CardContent>
                     </Card>
                 </Link>
